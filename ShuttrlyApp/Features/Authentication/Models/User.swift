@@ -18,8 +18,8 @@ struct User: Codable, Identifiable {
     // Username chosen by the user (unique in the system)
     let username: String
     
-    // User's email address (used for login and communication)
-    let email: String
+    // User's email address (used for login and communication) - can be null from API
+    let email: String?
     
     // Optional first name (user might not provide it)
     let firstName: String?
@@ -27,11 +27,20 @@ struct User: Codable, Identifiable {
     // Optional last name (user might not provide it)
     let lastName: String?
     
+    // Optional date of birth (user might not provide it)
+    let dateOfBirth: String?
+    
     // Optional profile picture URL or path
     let profilePicture: String?
     
     // Optional user biography or description
     let bio: String?
+    
+    // Whether the user profile is private
+    let isPrivate: Bool
+    
+    // Whether the user's email is verified
+    let isEmailVerified: Bool
     
     // Date when user joined the platform (string format from API)
     let dateJoined: String
@@ -48,8 +57,11 @@ struct User: Codable, Identifiable {
         case email
         case firstName = "first_name" // Maps firstName to "first_name" in JSON
         case lastName = "last_name" // Maps lastName to "last_name" in JSON
+        case dateOfBirth = "date_of_birth" // Maps dateOfBirth to "date_of_birth" in JSON
         case profilePicture = "profile_picture" // Maps profilePicture to "profile_picture" in JSON
         case bio
+        case isPrivate = "is_private" // Maps isPrivate to "is_private" in JSON
+        case isEmailVerified = "is_email_verified" // Maps isEmailVerified to "is_email_verified" in JSON
         case dateJoined = "date_joined" // Maps dateJoined to "date_joined" in JSON
         case isActive = "is_active" // Maps isActive to "is_active" in JSON
     }
@@ -101,9 +113,12 @@ struct ComprehensiveUserProfile: Codable {
     let collectionStatistics: CollectionStatistics
     let trustedDevices: TrustedDevices
     let securityInfo: SecurityInfo
+    let apiEndpoints: APIEndpoints
+    let webUrls: WebURLs
+    let gdprCompliance: GDPRCompliance
     
     enum CodingKeys: String, CodingKey {
-        case userId = "id"
+        case userId = "user_id"
         case basicInfo = "basic_info"
         case profilePicture = "profile_picture"
         case accountStatus = "account_status"
@@ -115,6 +130,9 @@ struct ComprehensiveUserProfile: Codable {
         case collectionStatistics = "collection_statistics"
         case trustedDevices = "trusted_devices"
         case securityInfo = "security_info"
+        case apiEndpoints = "api_endpoints"
+        case webUrls = "web_urls"
+        case gdprCompliance = "gdpr_compliance"
     }
 }
 
@@ -123,10 +141,10 @@ struct ComprehensiveUserProfile: Codable {
 
 struct BasicUserInfo: Codable {
     let username: String
-    let email: String
+    let email: String?
     let firstName: String?
     let lastName: String?
-    let fullName: String
+    let fullName: String?
     let dateOfBirth: String?
     let age: Int?
     let bio: String?
@@ -161,27 +179,103 @@ struct AccountStatus: Codable {
 
 struct VerificationStatus: Codable {
     let isEmailVerified: Bool
+    let emailVerificationCode: String?
+    let verificationCodeSentAt: String?
     let canSendVerificationCode: Bool
     
     enum CodingKeys: String, CodingKey {
         case isEmailVerified = "is_email_verified"
+        case emailVerificationCode = "email_verification_code"
+        case verificationCodeSentAt = "verification_code_sent_at"
         case canSendVerificationCode = "can_send_verification_code"
     }
 }
 
 struct TwoFactorAuth: Codable {
     let email2FAEnabled: Bool
+    let email2FACode: String?
+    let email2FASentAt: String?
     let totpEnabled: Bool
+    let twoFATOTPSecret: String?
     
     enum CodingKeys: String, CodingKey {
         case email2FAEnabled = "email_2fa_enabled"
+        case email2FACode = "email_2fa_code"
+        case email2FASentAt = "email_2fa_sent_at"
         case totpEnabled = "totp_enabled"
+        case twoFATOTPSecret = "twofa_totp_secret"
     }
 }
 
 struct TrustedDevices: Codable {
     let count: Int
     let devices: [TrustedDevice]
+}
+
+struct DeviceLocation: Codable {
+    let city: String?
+    let region: String?
+    let country: String?
+    
+    // Custom decoder pour gérer les cas où location est une string JSON ou un dict
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        
+        // Essayer d'abord comme une string (cas le plus probable)
+        if let stringValue = try? container.decode(String.self) {
+            // Nettoyer la string pour enlever les caractères problématiques
+            let cleanString = stringValue
+                .replacingOccurrences(of: "'", with: "\"")
+                .replacingOccurrences(of: "None", with: "null")
+            
+            // Essayer de parser comme JSON
+            if let data = cleanString.data(using: .utf8),
+               let locationDict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                
+                // Extraire les valeurs en gérant les "null" et les valeurs vides
+                if let city = locationDict["city"] as? String, city != "null" && !city.isEmpty {
+                    self.city = city
+                } else {
+                    self.city = nil
+                }
+                
+                if let region = locationDict["region"] as? String, region != "null" && !region.isEmpty {
+                    self.region = region
+                } else {
+                    self.region = nil
+                }
+                
+                if let country = locationDict["country"] as? String, country != "null" && !country.isEmpty {
+                    self.country = country
+                } else {
+                    self.country = nil
+                }
+            } else {
+                // Si ce n'est pas du JSON valide, traiter comme une string simple
+                self.city = stringValue.isEmpty ? nil : stringValue
+                self.region = nil
+                self.country = nil
+            }
+        } else {
+            // Fallback: essayer comme dictionnaire
+            let dict = try container.decode([String: String?].self)
+            self.city = dict["city"] ?? nil
+            self.region = dict["region"] ?? nil
+            self.country = dict["country"] ?? nil
+        }
+    }
+    
+    // Encoder normal
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(city, forKey: .city)
+        try container.encode(region, forKey: .region)
+        try container.encode(country, forKey: .country)
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case city, region, country
+    }
 }
 
 struct TrustedDevice: Codable {
@@ -193,7 +287,7 @@ struct TrustedDevice: Codable {
     let osFamily: String?
     let osVersion: String?
     let ipAddress: String?
-    let location: String?
+    let location: DeviceLocation?
     let createdAt: String
     let lastUsedAt: String?
     let expiresAt: String?
@@ -208,9 +302,6 @@ struct TrustedDevice: Codable {
         case osVersion = "os_version"
         case ipAddress = "ip_address"
         case location
-        case createdAt = "created_at"
-        case lastUsedAt = "last_used_at"
-        case expiresAt = "expires_at"
         case createdAt = "created_at"
         case lastUsedAt = "last_used_at"
         case expiresAt = "expires_at"
@@ -233,11 +324,13 @@ struct UserTimestamps: Codable {
     let dateJoined: String
     let lastLoginDate: String?
     let lastLoginIP: String?
+    let ipAddress: String?
     
     enum CodingKeys: String, CodingKey {
         case dateJoined = "date_joined"
         case lastLoginDate = "last_login_date"
         case lastLoginIP = "last_login_ip"
+        case ipAddress = "ip_address"
     }
 }
 
@@ -257,25 +350,33 @@ struct UserPermissions: Codable {
 
 struct PhotoStatistics: Codable {
     let totalPhotos: Int
-    let publicPhotos: Int
-    let privatePhotos: Int
+    let totalSizeBytes: Int
+    let totalSizeMB: Double
+    let rawPhotos: Int
+    let jpegPhotos: Int
+    let recentPhotos: Int
     
     enum CodingKeys: String, CodingKey {
         case totalPhotos = "total_photos"
-        case publicPhotos = "public_photos"
-        case privatePhotos = "private_photos"
+        case totalSizeBytes = "total_size_bytes"
+        case totalSizeMB = "total_size_mb"
+        case rawPhotos = "raw_photos"
+        case jpegPhotos = "jpeg_photos"
+        case recentPhotos = "recent_photos"
     }
 }
 
 struct CollectionStatistics: Codable {
     let totalCollections: Int
-    let publicCollections: Int
     let privateCollections: Int
+    let publicCollections: Int
+    let collections: [Collection]
     
     enum CodingKeys: String, CodingKey {
         case totalCollections = "total_collections"
-        case publicCollections = "public_collections"
         case privateCollections = "private_collections"
+        case publicCollections = "public_collections"
+        case collections
     }
 }
 
@@ -310,7 +411,7 @@ struct ProfileUpdateRequest: Codable {
     }
 }
 
-// Model for profile response
+// Model for profile response (full profile)
 struct ProfileResponse: Codable {
     let user: User
     let photoCount: Int
@@ -325,15 +426,79 @@ struct ProfileResponse: Codable {
     }
 }
 
-
-// MARK: - Error Models
-
-// Model for checking username availability
-struct UsernameCheckRequest: Codable {
-    let username: String
+// Model for profile update response (simplified)
+struct ProfileUpdateResponse: Codable {
+    let success: Bool
+    let message: String
+    let user: User
+    
+    enum CodingKeys: String, CodingKey {
+        case success, message, user
+    }
 }
 
-struct UsernameUserCheckResponse: Codable {
-    let available: Bool
-    let message: String
+// MARK: - Additional Profile Models
+
+struct APIEndpoints: Codable {
+    let profile: String
+    let profileFull: String
+    let updateProfile: String
+    let photos: String
+    let collections: String
+    let stats: String
+    
+    enum CodingKeys: String, CodingKey {
+        case profile
+        case profileFull = "profile_full"
+        case updateProfile = "update_profile"
+        case photos
+        case collections
+        case stats
+    }
+}
+
+struct WebURLs: Codable {
+    let profilePage: String
+    let photosPage: String
+    let collectionsPage: String
+    let settingsPage: String
+    
+    enum CodingKeys: String, CodingKey {
+        case profilePage = "profile_page"
+        case collectionsPage = "collections_page"
+        case settingsPage = "settings_page"
+        case photosPage = "photos_page"
+    }
+}
+
+struct GDPRCompliance: Codable {
+    let isAnonymized: Bool
+    let dataRetentionPolicy: String
+    let rightToBeForgotten: String
+    let dataPortability: String
+    
+    enum CodingKeys: String, CodingKey {
+        case isAnonymized = "is_anonymized"
+        case dataRetentionPolicy = "data_retention_policy"
+        case rightToBeForgotten = "right_to_be_forgotten"
+        case dataPortability = "data_portability"
+    }
+}
+
+struct Collection: Codable {
+    let id: Int
+    let name: String
+    let description: String
+    let isPrivate: Bool
+    let photoCount: Int
+    let createdAt: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case description
+        case isPrivate = "is_private"
+        case photoCount = "photo_count"
+        case createdAt = "created_at"
+    }
 }
