@@ -18,7 +18,7 @@ struct LoginView: View {
     
     // Navigation state for multi-step login
     @State private var navigationPath = NavigationPath()
-    @State private var currentStep: LoginStep = .credentials
+    @State private var currentStep: TwoFAStep = .credentials
     
     // Form data
     @State private var identifier = ""
@@ -39,8 +39,8 @@ struct LoginView: View {
                 
                 Spacer()
             }
-            .background(ColorConstants.currentTheme(colorScheme).background)
-            .navigationDestination(for: LoginStep.self) { step in
+            .appBackground()
+            .navigationDestination(for: TwoFAStep.self) { step in
                 switch step {
                 case .credentials:
                     credentialsStepView
@@ -61,24 +61,24 @@ struct LoginView: View {
         }
         .onReceive(authService.$requires2FA) { requires2FA in
             if requires2FA {
-                if authService.available2FAMethods.count > 1 {
-                    currentStep = .choose2FA
-                    navigationPath.append(LoginStep.choose2FA)
-                } else if let method = authService.available2FAMethods.first {
-                    if method == "email" {
-                        currentStep = .email2FA
-                        navigationPath.append(LoginStep.email2FA)
-                    } else if method == "totp" {
-                        currentStep = .totp2FA
-                        navigationPath.append(LoginStep.totp2FA)
-                    }
+                            if authService.available2FAMethods.count > 1 {
+                currentStep = .choose2FA
+                navigationPath.append(TwoFAStep.choose2FA)
+            } else if let method = authService.available2FAMethods.first {
+                if method == "email" {
+                    currentStep = .email2FA
+                    navigationPath.append(TwoFAStep.email2FA)
+                } else if method == "totp" {
+                    currentStep = .totp2FA
+                    navigationPath.append(TwoFAStep.totp2FA)
                 }
+            }
             }
         }
         .onReceive(authService.$isAuthenticated) { isAuthenticated in
             if isAuthenticated {
                 currentStep = .complete
-                navigationPath.append(LoginStep.complete)
+                navigationPath.append(TwoFAStep.complete)
             }
         }
     }
@@ -87,22 +87,23 @@ struct LoginView: View {
     private var loginHeader: some View {
         VStack(spacing: 24) {
             // Logo
-            Text("Shuttrly")
-                .font(.system(size: 54, weight: .bold, design: .serif))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).primary)
-                .padding(.top, 48)
+            Image("logoShuttrlyFit")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 250)
             
             // Welcome text
             Text("Welcome back!")
                 .font(.system(size: 40, weight: .bold, design: .serif))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+                .foregroundColor(Color("textDefaultColor"))
             
             Text("Sign in to your account")
                 .font(.system(size: 18))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text600)
+                .foregroundColor(Color("textDefaultColor"))
         }
         .padding(.horizontal, 32)
         .padding(.bottom, 48)
+        .padding(.top, 120)
     }
     
     // MARK: - Main Content
@@ -131,19 +132,21 @@ struct LoginView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Email or Username")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+                        .foregroundColor(Color("textDefaultColor"))
                     
                     TextField("Enter your email or username", text: $identifier)
                         .textFieldStyle(ShuttrlyTextFieldStyle())
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
+                        .frame(height: 44)
+                        .frame(maxWidth: .infinity)
                 }
                 
                 // Password field
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Password")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+                        .foregroundColor(Color("textDefaultColor"))
                     
                     SecureField("Enter your password", text: $password)
                         .textFieldStyle(ShuttrlyTextFieldStyle())
@@ -152,8 +155,8 @@ struct LoginView: View {
                 // Remember device toggle
                 Toggle("Remember this device", isOn: $rememberDevice)
                     .font(.system(size: 14))
-                    .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
-                    .tint(ColorConstants.currentTheme(colorScheme).primary)
+                    .foregroundColor(Color("textDefaultColor"))
+                    .tint(Color("primaryDefaultColor"))
             }
             
             // Login button
@@ -165,12 +168,14 @@ struct LoginView: View {
                         .scaleEffect(0.8)
                 } else {
                     Text("Sign In")
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 16)
                         .font(.system(size: 16, weight: .semibold))
                 }
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(ColorConstants.currentTheme(colorScheme).primary)
+                .background(Color("primaryDefaultColor"))
                 .foregroundColor(.white)
                 .cornerRadius(12)
             }
@@ -191,7 +196,7 @@ struct LoginView: View {
                 // TODO: Navigate to forgot password
             }
             .font(.system(size: 14))
-            .foregroundColor(ColorConstants.currentTheme(colorScheme).primary)
+            .foregroundColor(Color("primaryDefaultColor"))
             .padding(.top, 16)
         }
         .padding(.horizontal, 32)
@@ -202,12 +207,11 @@ struct LoginView: View {
         VStack(spacing: 32) {
             Text("Two-Factor Authentication")
                 .font(.system(size: 30, weight: .bold, design: .serif))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
                 .multilineTextAlignment(.center)
             
             Text("Choose your preferred 2FA method")
                 .font(.system(size: 18))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text600)
+                .foregroundColor(Color("textDefaultColor"))
                 .multilineTextAlignment(.center)
             
             VStack(spacing: 24) {
@@ -215,43 +219,43 @@ struct LoginView: View {
                 Button(action: { select2FAMethod(.email) }) {
                     HStack {
                         Image(systemName: "envelope.fill")
-                            .foregroundColor(ColorConstants.currentTheme(colorScheme).primary)
+                            .foregroundColor(Color("primaryDefaultColor"))
                         Text("Email Verification")
                             .font(.system(size: 16, weight: .medium))
                         Spacer()
                         Image(systemName: "chevron.right")
-                            .foregroundColor(ColorConstants.currentTheme(colorScheme).text400)
+                            .foregroundColor(Color("textDefaultColor"))
                     }
                     .padding(24)
-                    .background(ColorConstants.currentTheme(colorScheme).background100)
+                    .background(Color("backgroundDefaultColor"))
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(ColorConstants.currentTheme(colorScheme).primary200, lineWidth: 1)
+                            .stroke(Color("primaryDefaultColor"), lineWidth: 1)
                     )
                 }
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+                .foregroundColor(Color("textDefaultColor"))
                 
                 // TOTP 2FA option
                 Button(action: { select2FAMethod(.totp) }) {
                     HStack {
                         Image(systemName: "key.fill")
-                            .foregroundColor(ColorConstants.currentTheme(colorScheme).primary)
+                            .foregroundColor(Color("primaryDefaultColor"))
                         Text("Authenticator App")
                             .font(.system(size: 16, weight: .medium))
                         Spacer()
                         Image(systemName: "chevron.right")
-                            .foregroundColor(ColorConstants.currentTheme(colorScheme).text400)
+                            .foregroundColor(Color("textDefaultColor"))
                     }
                     .padding(24)
-                    .background(ColorConstants.currentTheme(colorScheme).background100)
+                    .background(Color("backgroundDefaultColor"))
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(ColorConstants.currentTheme(colorScheme).primary200, lineWidth: 1)
+                            .stroke(Color("primaryDefaultColor"), lineWidth: 1)
                     )
                 }
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+                .foregroundColor(Color("textDefaultColor"))
             }
         }
         .padding(.horizontal, 32)
@@ -262,19 +266,19 @@ struct LoginView: View {
         VStack(spacing: 32) {
             Text("Email Verification")
                 .font(.system(size: 30, weight: .bold, design: .serif))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+                .foregroundColor(Color("textDefaultColor"))
                 .multilineTextAlignment(.center)
             
             Text("Enter the 6-digit code sent to your email")
                 .font(.system(size: 18))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text600)
+                .foregroundColor(Color("textDefaultColor"))
                 .multilineTextAlignment(.center)
             
             // 2FA Code field
             VStack(alignment: .leading, spacing: 8) {
                 Text("Verification Code")
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+                    .foregroundColor(Color("textDefaultColor"))
                 
                 TextField("Enter 6-digit code", text: $twoFACode)
                     .textFieldStyle(ShuttrlyTextFieldStyle())
@@ -301,7 +305,7 @@ struct LoginView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(ColorConstants.currentTheme(colorScheme).primary)
+                .background(Color("primaryDefaultColor"))
                 .foregroundColor(.white)
                 .cornerRadius(12)
             }
@@ -313,7 +317,7 @@ struct LoginView: View {
                 handleResendCode()
             }
             .font(.system(size: 14))
-            .foregroundColor(ColorConstants.currentTheme(colorScheme).primary)
+            .foregroundColor(Color("primaryDefaultColor"))
             .padding(.top, 16)
         }
         .padding(.horizontal, 32)
@@ -324,19 +328,19 @@ struct LoginView: View {
         VStack(spacing: 32) {
             Text("Authenticator App")
                 .font(.system(size: 30, weight: .bold, design: .serif))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+                .foregroundColor(Color("textDefaultColor"))
                 .multilineTextAlignment(.center)
             
             Text("Enter the 6-digit code from your authenticator app")
                 .font(.system(size: 18))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text600)
+                .foregroundColor(Color("textDefaultColor"))
                 .multilineTextAlignment(.center)
             
             // TOTP Code field
             VStack(alignment: .leading, spacing: 8) {
                 Text("TOTP Code")
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+                    .foregroundColor(Color("textDefaultColor"))
                 
                 TextField("Enter 6-digit code", text: $twoFACode)
                     .textFieldStyle(ShuttrlyTextFieldStyle())
@@ -363,7 +367,7 @@ struct LoginView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(ColorConstants.currentTheme(colorScheme).primary)
+                .background(Color("primaryDefaultColor"))
                 .foregroundColor(.white)
                 .cornerRadius(12)
             }
@@ -382,12 +386,12 @@ struct LoginView: View {
             
             Text("Welcome back!")
                 .font(.system(size: 40, weight: .bold, design: .serif))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+                .foregroundColor(Color("textDefaultColor"))
                 .multilineTextAlignment(.center)
             
             Text("You have successfully signed in to your account")
                 .font(.system(size: 18))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text600)
+                .foregroundColor(Color("textDefaultColor"))
                 .multilineTextAlignment(.center)
             
             // Continue button
@@ -399,7 +403,7 @@ struct LoginView: View {
             .font(.system(size: 16, weight: .semibold))
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(ColorConstants.currentTheme(colorScheme).primary)
+            .background(Color("primaryDefaultColor"))
             .foregroundColor(.white)
             .cornerRadius(12)
         }
@@ -424,14 +428,17 @@ struct LoginView: View {
         
         if method == .email {
             currentStep = .email2FA
-            navigationPath.append(LoginStep.email2FA)
+            navigationPath.append(TwoFAStep.email2FA)
         } else if method == .totp {
             currentStep = .totp2FA
-            navigationPath.append(LoginStep.totp2FA)
+            navigationPath.append(TwoFAStep.totp2FA)
         }
     }
     
     private func handle2FASubmit() {
+        // Clear previous error messages
+        authService.errorMessage = nil
+        
         if twoFAMethod == .email {
             authService.loginStep3Email2FA(code: twoFACode)
         } else if twoFAMethod == .totp {
@@ -443,9 +450,11 @@ struct LoginView: View {
     }
     
     private func handleResendCode() {
-        // For now, just clear the error and show a message
+        // Clear previous error messages
         authService.errorMessage = nil
-        // TODO: Implement resend code functionality
+        
+        // Call the resend 2FA code method
+        authService.resend2FACode()
     }
 }
 
@@ -461,18 +470,22 @@ struct ShuttrlyTextFieldStyle: TextFieldStyle {
     
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
-            .padding(24)
-            .background(ColorConstants.currentTheme(colorScheme).background100)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .background(Color("backgroundDefaultColor"))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(ColorConstants.currentTheme(colorScheme).primary200, lineWidth: 1)
+                    .stroke(Color("primaryDefaultColor"), lineWidth: 1)
             )
-            .foregroundColor(ColorConstants.currentTheme(colorScheme).text)
+            .foregroundColor(Color("textDefaultColor"))
+            .frame(height: 50)
+            .frame(maxWidth: .infinity)
     }
 }
 
 // MARK: - Preview
 #Preview {
     LoginView()
+        .environmentObject(AuthService())
 }

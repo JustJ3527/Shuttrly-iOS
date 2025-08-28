@@ -80,6 +80,11 @@ class NetworkManager: ObservableObject {
                     }
                     return data
                 case 401:
+                    // Don't throw unauthorized error for session refresh endpoint
+                    // This allows the app to continue working even if refresh fails
+                    if endpoint.contains("refresh-session") {
+                        return data
+                    }
                     throw NetworkError.unauthorized
                 case 403:
                     throw NetworkError.forbidden
@@ -213,6 +218,7 @@ class NetworkManager: ObservableObject {
                 case 200...299:
                     return data
                 case 401:
+                    // For custom requests, we don't have endpoint info, so always throw unauthorized
                     throw NetworkError.unauthorized
                 case 403:
                     throw NetworkError.forbidden

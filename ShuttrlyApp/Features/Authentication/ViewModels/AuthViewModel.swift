@@ -29,7 +29,7 @@ class AuthViewModel: ObservableObject {
     
     // 2FA state
     @Published var requires2FA = false
-    @Published var current2FAStep: LoginStep = .credentials
+    @Published var current2FAStep: TwoFAStep = .credentials
     @Published var available2FAMethods: [String] = []
     @Published var chosen2FAMethod: String?
     

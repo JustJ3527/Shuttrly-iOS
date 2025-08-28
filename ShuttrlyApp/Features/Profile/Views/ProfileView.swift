@@ -20,46 +20,51 @@ struct ProfileView: View {
     // MARK: - Body
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    if let profile = viewModel.profile {
-                        profileHeader(profile)
-                        profileStats(profile)
-                        profileDetails(profile)
-                        trustedDevices(profile)
-                    } else if viewModel.isLoading {
-                        loadingView
-                    } else {
-                        emptyStateView
+        ZStack {
+            NavigationView {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        if let profile = viewModel.profile {
+                            profileHeader(profile)
+                            profileStats(profile)
+                            profileDetails(profile)
+                            trustedDevices(profile)
+                        } else if viewModel.isLoading {
+                            loadingView
+                        } else {
+                            emptyStateView
+                        }
                     }
+                    .background(Color.clear)
+                    .padding()
                 }
-                .padding()
-            }
-            .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                toolbarContent
-            }
-            .refreshable {
-                viewModel.loadProfile()
+                .appBackground()
+                .navigationTitle("Profile")
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar {
+                    toolbarContent
+                }
+                .refreshable {
+                    viewModel.loadProfile()
+                }
             }
         }
-        .blurredCirclesBackground()
         .onAppear {
             viewModel.loadProfile()
         }
-        .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
-            Button("OK") {
-                viewModel.clearError()
-            }
+        .alert("Error", isPresented: Binding<Bool>(
+            get: { viewModel.errorMessage != nil },
+            set: { _ in viewModel.clearError() }
+        )) {
+            Button("OK") { viewModel.clearError() }
         } message: {
             Text(viewModel.errorMessage ?? "")
         }
-        .alert("Success", isPresented: .constant(viewModel.successMessage != nil)) {
-            Button("OK") {
-                viewModel.clearSuccess()
-            }
+        .alert("Success", isPresented: Binding<Bool>(
+            get: { viewModel.successMessage != nil },
+            set: { _ in viewModel.clearSuccess() }
+        )) {
+            Button("OK") { viewModel.clearSuccess() }
         } message: {
             Text(viewModel.successMessage ?? "")
         }
@@ -86,7 +91,7 @@ struct ProfileView: View {
                     Image(systemName: "person.circle.fill")
                         .resizable()
                         .frame(width: 120, height: 120)
-                        .foregroundColor(ColorConstants.currentTheme(colorScheme).primary)
+                        .foregroundColor(Color("primaryDefaultColor"))
                 }
                 
                 // Edit button overlay
@@ -97,7 +102,7 @@ struct ProfileView: View {
                         Image(systemName: "camera.fill")
                             .foregroundColor(.white)
                             .padding(8)
-                            .background(ColorConstants.currentTheme(colorScheme).primary)
+                            .background(Color("primaryDefaultColor"))
                             .clipShape(Circle())
                     }
                     .offset(x: 40, y: 40)
@@ -112,18 +117,18 @@ struct ProfileView: View {
                 
                 Text("@\(profile.basicInfo.username)")
                     .font(.subheadline)
-                    .foregroundColor(ColorConstants.currentTheme(colorScheme).text600)
+                    .foregroundColor(Color("textDefaultColor"))
                 
                 if let bio = profile.basicInfo.bio, !bio.isEmpty {
                     Text(bio)
                         .font(.body)
+                        .foregroundColor(Color("textDefaultColor"))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
             }
         }
         .padding()
-        .background(ColorConstants.currentTheme(colorScheme).background100)
         .cornerRadius(16)
     }
     
@@ -164,7 +169,6 @@ struct ProfileView: View {
             }
         }
         .padding()
-        .background(ColorConstants.currentTheme(colorScheme).background100)
         .cornerRadius(16)
     }
     
@@ -230,7 +234,7 @@ struct ProfileView: View {
             
             if profile.trustedDevices.devices.isEmpty {
                 Text("No trusted devices")
-                    .foregroundColor(ColorConstants.currentTheme(colorScheme).text600)
+                    .foregroundColor(Color("textDefaultColor"))
                     .italic()
             } else {
                 ForEach(profile.trustedDevices.devices, id: \.deviceToken) { device in
@@ -241,7 +245,6 @@ struct ProfileView: View {
             }
         }
         .padding()
-        .background(ColorConstants.currentTheme(colorScheme).background100)
         .cornerRadius(16)
     }
     
@@ -251,7 +254,7 @@ struct ProfileView: View {
             ProgressView()
                 .scaleEffect(1.5)
             Text("Loading profile...")
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text600)
+                .foregroundColor(Color("textDefaultColor"))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -261,14 +264,14 @@ struct ProfileView: View {
         VStack(spacing: 16) {
             Image(systemName: "person.crop.circle.badge.exclamationmark")
                 .font(.system(size: 60))
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text600)
+                .foregroundColor(Color("textDefaultColor"))
             
             Text("Profile Not Found")
                 .font(.title2)
                 .fontWeight(.semibold)
             
             Text("Unable to load your profile. Please try again.")
-                .foregroundColor(ColorConstants.currentTheme(colorScheme).text600)
+                .foregroundColor(Color("textDefaultColor"))
                 .multilineTextAlignment(.center)
             
             Button("Retry") {
@@ -466,7 +469,39 @@ struct DeviceRow: View {
 
 // MARK: - Preview
 
-#Preview {
+#Preview("Sample Profile") {
     ProfileView()
-        .environmentObject(AuthService())
+        .environmentObject(ProfileViewModel())
+}
+
+#Preview("Empty Profile") {
+    let viewModel = ProfileViewModel()
+    // Simulate empty state
+    viewModel.profile = nil
+    viewModel.isLoading = false
+    
+    return ProfileView()
+        .environmentObject(viewModel)
+}
+
+#Preview("Loading State") {
+    let viewModel = ProfileViewModel()
+    viewModel.isLoading = true
+    viewModel.profile = nil
+    
+    return ProfileView()
+        .environmentObject(viewModel)
+}
+
+#Preview("Error State") {
+    let viewModel = ProfileViewModel()
+    viewModel.errorMessage = "Failed to load profile. Please check your connection and try again."
+    
+    return ProfileView()
+        .environmentObject(viewModel)
+}
+
+#Preview("Profile with Data") {
+    ProfileView()
+        .environmentObject(ProfileViewModel())
 }

@@ -19,7 +19,9 @@ struct AppConstants {
             // Authentification
             static let login = "/auth/login/"
             static let logout = "/auth/logout/"
+            static let refreshSession = "/auth/refresh-session/"
             static let refreshToken = "/auth/refresh/"
+            static let resend2FACode = "/auth/resend-2fa-code/"
             
             // Registration
             static let registerStep1 = "/auth/register/step1/"

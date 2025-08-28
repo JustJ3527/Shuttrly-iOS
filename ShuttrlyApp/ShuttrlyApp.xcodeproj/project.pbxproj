@@ -7,12 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		66260D612E60C9C200DECDDC /* Localizable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3A82E5FB6FD00B5E85F /* Localizable.swift */; };
+		66260D622E60C9DC00DECDDC /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3A22E5FB6BA00B5E85F /* ErrorView.swift */; };
+		66260D632E60C9DF00DECDDC /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3A12E5FB6A500B5E85F /* LoadingView.swift */; };
+		66260D642E60C9E300DECDDC /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3A02E5FB69700B5E85F /* CustomButton.swift */; };
 		663FF3682E5FB2F100B5E85F /* ShuttrlyAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3672E5FB2F100B5E85F /* ShuttrlyAppApp.swift */; };
 		663FF36C2E5FB2F200B5E85F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 663FF36B2E5FB2F200B5E85F /* Assets.xcassets */; };
 		663FF3932E5FB5C500B5E85F /* Color+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3922E5FB5C200B5E85F /* Color+Extensions.swift */; };
 		663FF3962E5FB5E400B5E85F /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3952E5FB5DA00B5E85F /* AppConstants.swift */; };
 		663FF3AE2E6077D800B5E85F /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3AD2E6077CD00B5E85F /* NetworkManager.swift */; };
-		663FF3B42E60881E00B5E85F /* ColorConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3B32E60881600B5E85F /* ColorConstants.swift */; };
 		663FF3B72E608CC700B5E85F /* LayoutConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3B62E608CC100B5E85F /* LayoutConstants.swift */; };
 		663FF3B92E608CDA00B5E85F /* TypographyConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3B82E608CD800B5E85F /* TypographyConstants.swift */; };
 		663FF3BA2E608DE500B5E85F /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3B52E608A1500B5E85F /* LoginView.swift */; };
@@ -25,6 +28,15 @@
 		663FF3C72E609EF000B5E85F /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3C62E609EF000B5E85F /* ProfileService.swift */; };
 		663FF3C92E609F1400B5E85F /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3C82E609F1400B5E85F /* ProfileViewModel.swift */; };
 		663FF3CB2E609F2900B5E85F /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3CA2E609F2900B5E85F /* ProfileView.swift */; };
+		66AE60C22E60CAB100C6BCDB /* customBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE60C12E60CAAE00C6BCDB /* customBackground.swift */; };
+		66AE60DD2E60E45700C6BCDB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 663FF36B2E5FB2F200B5E85F /* Assets.xcassets */; };
+		66AE61592E61091700C6BCDB /* TwoFAModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE61582E61091700C6BCDB /* TwoFAModels.swift */; };
+		66AE615B2E61094A00C6BCDB /* Email2FAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE615A2E61094A00C6BCDB /* Email2FAView.swift */; };
+		66AE615D2E61097700C6BCDB /* TwoFAChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE615C2E61097700C6BCDB /* TwoFAChoiceView.swift */; };
+		66AE615F2E61099C00C6BCDB /* TwoFATestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE615E2E61099C00C6BCDB /* TwoFATestView.swift */; };
+		66AE61612E6109AC00C6BCDB /* TOTP2FAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE61602E6109AC00C6BCDB /* TOTP2FAView.swift */; };
+		66AE61632E610F3900C6BCDB /* TwoFACoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE61622E610F3900C6BCDB /* TwoFACoordinatorView.swift */; };
+		66AE61652E61110D00C6BCDB /* TwoFAService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE61642E61110D00C6BCDB /* TwoFAService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,18 +77,38 @@
 		663FF3B02E6086A000B5E85F /* RegistrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationService.swift; sourceTree = "<group>"; };
 		663FF3B12E60870F00B5E85F /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		663FF3B22E60873F00B5E85F /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
-		663FF3B32E60881600B5E85F /* ColorConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorConstants.swift; sourceTree = "<group>"; };
 		663FF3B52E608A1500B5E85F /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		663FF3B62E608CC100B5E85F /* LayoutConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutConstants.swift; sourceTree = "<group>"; };
 		663FF3B82E608CD800B5E85F /* TypographyConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypographyConstants.swift; sourceTree = "<group>"; };
 		663FF3C62E609EF000B5E85F /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
 		663FF3C82E609F1400B5E85F /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		663FF3CA2E609F2900B5E85F /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		66AE60C12E60CAAE00C6BCDB /* customBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = customBackground.swift; sourceTree = "<group>"; };
+		66AE61582E61091700C6BCDB /* TwoFAModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFAModels.swift; sourceTree = "<group>"; };
+		66AE615A2E61094A00C6BCDB /* Email2FAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Email2FAView.swift; sourceTree = "<group>"; };
+		66AE615C2E61097700C6BCDB /* TwoFAChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFAChoiceView.swift; sourceTree = "<group>"; };
+		66AE615E2E61099C00C6BCDB /* TwoFATestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFATestView.swift; sourceTree = "<group>"; };
+		66AE61602E6109AC00C6BCDB /* TOTP2FAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TOTP2FAView.swift; sourceTree = "<group>"; };
+		66AE61622E610F3900C6BCDB /* TwoFACoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFACoordinatorView.swift; sourceTree = "<group>"; };
+		66AE61642E61110D00C6BCDB /* TwoFAService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFAService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		66AE61692E6120F300C6BCDB /* Exceptions for "ShuttrlyApp" folder in "ShuttrlyApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 663FF3632E5FB2F100B5E85F /* ShuttrlyApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		663FF3662E5FB2F100B5E85F /* ShuttrlyApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				66AE61692E6120F300C6BCDB /* Exceptions for "ShuttrlyApp" folder in "ShuttrlyApp" target */,
+			);
 			path = ShuttrlyApp;
 			sourceTree = "<group>";
 		};
@@ -172,7 +204,6 @@
 			children = (
 				663FF3B62E608CC100B5E85F /* LayoutConstants.swift */,
 				663FF3B82E608CD800B5E85F /* TypographyConstants.swift */,
-				663FF3B32E60881600B5E85F /* ColorConstants.swift */,
 				663FF3952E5FB5DA00B5E85F /* AppConstants.swift */,
 			);
 			path = Constants;
@@ -201,6 +232,7 @@
 		663FF3992E5FB64400B5E85F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				66AE61582E61091700C6BCDB /* TwoFAModels.swift */,
 				663FF3A92E5FB78C00B5E85F /* User.swift */,
 				663FF3AA2E5FC31D00B5E85F /* RegistrationModels.swift */,
 			);
@@ -210,6 +242,11 @@
 		663FF39A2E5FB65100B5E85F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				66AE61622E610F3900C6BCDB /* TwoFACoordinatorView.swift */,
+				66AE61602E6109AC00C6BCDB /* TOTP2FAView.swift */,
+				66AE615E2E61099C00C6BCDB /* TwoFATestView.swift */,
+				66AE615C2E61097700C6BCDB /* TwoFAChoiceView.swift */,
+				66AE615A2E61094A00C6BCDB /* Email2FAView.swift */,
 				663FF3B52E608A1500B5E85F /* LoginView.swift */,
 			);
 			path = Views;
@@ -227,6 +264,7 @@
 		663FF39C2E5FB66700B5E85F /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				66AE61642E61110D00C6BCDB /* TwoFAService.swift */,
 				663FF3AF2E607F6A00B5E85F /* AuthService.swift */,
 				663FF3B02E6086A000B5E85F /* RegistrationService.swift */,
 			);
@@ -249,6 +287,7 @@
 				663FF3A22E5FB6BA00B5E85F /* ErrorView.swift */,
 				663FF3A12E5FB6A500B5E85F /* LoadingView.swift */,
 				663FF3A02E5FB69700B5E85F /* CustomButton.swift */,
+				66AE60C12E60CAAE00C6BCDB /* customBackground.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -456,6 +495,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				66AE60DD2E60E45700C6BCDB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -471,15 +511,26 @@
 				663FF3B92E608CDA00B5E85F /* TypographyConstants.swift in Sources */,
 				663FF3B72E608CC700B5E85F /* LayoutConstants.swift in Sources */,
 				663FF3BA2E608DE500B5E85F /* LoginView.swift in Sources */,
+				66260D632E60C9DF00DECDDC /* LoadingView.swift in Sources */,
 				663FF3682E5FB2F100B5E85F /* ShuttrlyAppApp.swift in Sources */,
+				66AE615D2E61097700C6BCDB /* TwoFAChoiceView.swift in Sources */,
 				663FF3BF2E60904000B5E85F /* RegistrationService.swift in Sources */,
+				66AE61632E610F3900C6BCDB /* TwoFACoordinatorView.swift in Sources */,
 				663FF3BD2E60902400B5E85F /* RegistrationModels.swift in Sources */,
 				663FF3AE2E6077D800B5E85F /* NetworkManager.swift in Sources */,
 				663FF3CB2E609F2900B5E85F /* ProfileView.swift in Sources */,
-				663FF3B42E60881E00B5E85F /* ColorConstants.swift in Sources */,
+				66AE61592E61091700C6BCDB /* TwoFAModels.swift in Sources */,
+				66AE60C22E60CAB100C6BCDB /* customBackground.swift in Sources */,
+				66AE615F2E61099C00C6BCDB /* TwoFATestView.swift in Sources */,
+				66AE61612E6109AC00C6BCDB /* TOTP2FAView.swift in Sources */,
+				66AE61652E61110D00C6BCDB /* TwoFAService.swift in Sources */,
 				663FF3BE2E60902A00B5E85F /* RegistrationViewModel.swift in Sources */,
 				663FF3932E5FB5C500B5E85F /* Color+Extensions.swift in Sources */,
+				66260D612E60C9C200DECDDC /* Localizable.swift in Sources */,
+				66AE615B2E61094A00C6BCDB /* Email2FAView.swift in Sources */,
 				663FF3C92E609F1400B5E85F /* ProfileViewModel.swift in Sources */,
+				66260D622E60C9DC00DECDDC /* ErrorView.swift in Sources */,
+				66260D642E60C9E300DECDDC /* CustomButton.swift in Sources */,
 				663FF3C02E60904500B5E85F /* AuthService.swift in Sources */,
 				663FF3962E5FB5E400B5E85F /* AppConstants.swift in Sources */,
 				663FF3BC2E60901F00B5E85F /* User.swift in Sources */,
@@ -569,7 +620,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -627,7 +678,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -647,9 +698,9 @@
 				DEVELOPMENT_TEAM = P7A93XL55Q;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShuttrlyApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -679,9 +730,9 @@
 				DEVELOPMENT_TEAM = P7A93XL55Q;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShuttrlyApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (

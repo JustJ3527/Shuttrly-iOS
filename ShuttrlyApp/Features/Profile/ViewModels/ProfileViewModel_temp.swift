@@ -38,32 +38,6 @@ class ProfileViewModel: ObservableObject {
     // Private properties
     private var cancellables: Set<AnyCancellable> = []
     
-    // MARK: - Preview Mode Detection
-    
-    /// Check if running in Xcode preview mode
-    var isPreviewMode: Bool {
-        return ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
-    }
-    
-    /// Get colors that work properly in preview mode
-    var previewColors: (primary: String, secondary: String, background: String) {
-        if isPreviewMode {
-            // Force specific colors for previews to avoid blue tint
-            return (
-                primary: "primaryDefaultColor",
-                secondary: "secondaryDefaultColor", 
-                background: "backgroundDefaultColor"
-            )
-        } else {
-            // Use dynamic colors in normal mode
-            return (
-                primary: "primaryDefaultColor",
-                secondary: "secondaryDefaultColor",
-                background: "backgroundDefaultColor"
-            )
-        }
-    }
-    
     // MARK: - Initialization
     
     init(profileService: ProfileService = ProfileService()) {

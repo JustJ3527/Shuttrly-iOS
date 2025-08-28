@@ -23,7 +23,7 @@ class AuthService: ObservableObject {
     
     // 2FA state properties
     @Published var requires2FA: Bool = false
-    @Published var current2FAStep: LoginStep = .credentials
+    @Published var current2FAStep: TwoFAStep = .credentials
     @Published var available2FAMethods: [String] = []
     @Published var chosen2FAMethod: String?
     
@@ -32,6 +32,9 @@ class AuthService: ObservableObject {
     
     // Cancellables for Combine subscriptions
     private var cancellables: Set<AnyCancellable> = []
+    
+    // Session refresh timer
+    private var sessionRefreshTimer: Timer?
     
     // MARK: - Initialization
     
@@ -48,17 +51,16 @@ class AuthService: ObservableObject {
         errorMessage = nil
         
         let loginRequest = LoginStep1Request(
-            step: "credentials",
             identifier: identifier,
             password: password,
-            rememberDevice: rememberDevice
+            rememberDevice: false
         )
         
         networkManager.performRequest(
             endpoint: AppConstants.API.Endpoints.login,
             method: .POST,
             requestBody: loginRequest,
-            responseType: DjangoLoginResponse.self
+            responseType: LoginStep1Response.self
         )
         .receive(on: DispatchQueue.main)
         .sink(
@@ -83,8 +85,7 @@ class AuthService: ObservableObject {
         errorMessage = nil
         
         let choiceRequest = LoginStep2ChoiceRequest(
-            step: "choose_2fa",
-            twofaMethod: method
+            chosenMethod: method
         )
         
         networkManager.performRequest(
@@ -114,7 +115,6 @@ class AuthService: ObservableObject {
         errorMessage = nil
         
         let email2FARequest = LoginStep3Email2FARequest(
-            step: "email_2fa",
             verificationCode: code
         )
         
@@ -145,7 +145,6 @@ class AuthService: ObservableObject {
         errorMessage = nil
         
         let totp2FARequest = LoginStep3TOTP2FARequest(
-            step: "totp_2fa",
             totpCode: code
         )
         
@@ -197,7 +196,7 @@ class AuthService: ObservableObject {
     
     // MARK: - Private Methods
     
-    private func handleDjangoLoginResponse(_ response: DjangoLoginResponse) {
+    private func handleDjangoLoginResponse(_ response: LoginStep1Response) {
         print("🔄 Processing Django login response...")
         
         // Check if login was successful
@@ -211,59 +210,17 @@ class AuthService: ObservableObject {
         if response.requires2FA {
             print("🔐 2FA required")
             requires2FA = true
-            // TODO: Handle 2FA flow
-        } else {
-            // No 2FA required, complete login
-            print("✅ Login successful, no 2FA required")
-            handleSuccessfulDjangoLogin(response)
-        }
-    }
-    
-    private func handleFlexibleLoginResponse(_ response: FlexibleLoginResponse) {
-        print("🔄 Processing flexible login response...")
-        
-        // Check if login was successful
-        guard response.isSuccessful else {
-            let errorMsg = response.errorMessage ?? "Unknown error occurred"
-            print("❌ Login failed: \(errorMsg)")
-            errorMessage = errorMsg
-            return
-        }
-        
-        // Check if 2FA is required
-        if response.actualRequires2FA {
-            print("🔐 2FA required")
-            requires2FA = true
             
-            if let methods = response.actualAvailableMethods, methods.count > 1 {
-                current2FAStep = .choose2FA
-                available2FAMethods = methods
-            } else if let methods = response.actualAvailableMethods, methods.count == 1 {
-                let method = methods[0]
-                if method == "email" {
-                    current2FAStep = .email2FA
-                } else if method == "totp" {
-                    current2FAStep = .totp2FA
-                }
-                available2FAMethods = methods
-            }
-        } else {
-            // No 2FA required, complete login
-            print("✅ Login successful, no 2FA required")
-            handleSuccessfulLogin(response)
-        }
-    }
-    
-    private func handleLoginStep1Response(_ response: LoginStep1Response) {
-        if response.requires2FA {
-            // 2FA required
-            requires2FA = true
-            
+            // Handle 2FA flow based on available methods
             if let methods = response.availableMethods, methods.count > 1 {
+                print("📋 Multiple 2FA methods available: \(methods)")
                 current2FAStep = .choose2FA
                 available2FAMethods = methods
+                chosen2FAMethod = nil // Reset chosen method
             } else if let methods = response.availableMethods, methods.count == 1 {
                 let method = methods[0]
+                print("🔐 Single 2FA method: \(method)")
+                chosen2FAMethod = method
                 if method == "email" {
                     current2FAStep = .email2FA
                 } else if method == "totp" {
@@ -271,58 +228,106 @@ class AuthService: ObservableObject {
                 }
                 available2FAMethods = methods
             }
+            
+            // Clear any previous error messages
+            errorMessage = nil
         } else {
             // No 2FA required, complete login
+            print("✅ Login successful, no 2FA required")
             handleSuccessfulLogin(response)
         }
     }
     
+
+
+    
     private func handleLoginStep2ChoiceResponse(_ response: LoginStep2ChoiceResponse) {
-        if response.nextStep == "email_2fa" {
-            current2FAStep = .email2FA
-            chosen2FAMethod = "email"
-        } else if response.nextStep == "totp_2fa" {
-            current2FAStep = .totp2FA
-            chosen2FAMethod = "totp"
+        print("🔄 Processing 2FA method choice response...")
+        
+        if response.success {
+            if let nextStep = response.nextStep {
+                if nextStep == "email_2fa" {
+                    current2FAStep = .email2FA
+                    chosen2FAMethod = "email"
+                    print("📧 Email 2FA selected")
+                } else if nextStep == "totp_2fa" {
+                    current2FAStep = .totp2FA
+                    chosen2FAMethod = "totp"
+                    print("🔑 TOTP 2FA selected")
+                }
+            }
+        } else {
+            errorMessage = response.message
         }
     }
     
     private func handleLoginStep3Email2FAResponse(_ response: LoginStep3Email2FAResponse) {
+        print("🔄 Processing email 2FA response...")
+        
         if response.success {
-            handleSuccessfulLogin(response)
+            // Email 2FA step completed successfully
+            // The API should have returned user data and tokens
+            if let user = response.user, let tokens = response.tokens {
+                // Store tokens
+                storeTokens(access: tokens.access, refresh: tokens.refresh)
+                
+                // Update user state
+                currentUser = user
+                isAuthenticated = true
+                requires2FA = false
+                current2FAStep = .credentials
+                errorMessage = nil
+                
+                // Log successful login
+                print("✅ User logged in successfully after email 2FA: \(user.username)")
+                print("🔑 Access token stored: \(String(tokens.access.prefix(20)))...")
+                
+                // Start session refresh timer
+                startSessionRefreshTimer()
+            } else {
+                // Fallback: if no user data in response, try to complete login
+                print("⚠️ No user data in 2FA response, attempting to complete login...")
+                complete2FALogin()
+            }
         } else {
             errorMessage = response.message
         }
     }
     
     private func handleLoginStep3TOTP2FAResponse(_ response: LoginStep3TOTP2FAResponse) {
+        print("🔄 Processing TOTP 2FA response...")
+        
         if response.success {
-            handleSuccessfulLogin(response)
+            // TOTP 2FA step completed successfully
+            // The API should have returned user data and tokens
+            if let user = response.user, let tokens = response.tokens {
+                // Store tokens
+                storeTokens(access: tokens.access, refresh: tokens.refresh)
+                
+                // Update user state
+                currentUser = user
+                isAuthenticated = true
+                requires2FA = false
+                current2FAStep = .credentials
+                errorMessage = nil
+                
+                // Log successful login
+                print("✅ User logged in successfully after TOTP 2FA: \(user.username)")
+                print("🔑 Access token stored: \(String(tokens.access.prefix(20)))...")
+                
+                // Start session refresh timer
+                startSessionRefreshTimer()
+            } else {
+                // Fallback: if no user data in response, try to complete login
+                print("⚠️ No user data in 2FA response, attempting to complete login...")
+                complete2FALogin()
+            }
         } else {
             errorMessage = response.message
         }
     }
     
-    private func handleSuccessfulDjangoLogin(_ response: DjangoLoginResponse) {
-        // Extract user and tokens from Django response
-        let user = response.user
-        let accessToken = response.tokens.access
-        let refreshToken = response.tokens.refresh
-        
-        // Store tokens
-        storeTokens(access: accessToken, refresh: refreshToken)
-        
-        // Update user state
-        currentUser = user
-        isAuthenticated = true
-        requires2FA = false
-        current2FAStep = .credentials
-        errorMessage = nil
-        
-        // Log successful login
-        print("✅ User logged in successfully: \(user.username)")
-        print("🔑 Access token stored: \(String(accessToken.prefix(20)))...")
-    }
+
     
     private func handleSuccessfulLogin<T>(_ response: T) {
         // Extract user and tokens based on response type
@@ -330,26 +335,24 @@ class AuthService: ObservableObject {
         var accessToken: String?
         var refreshToken: String?
         
-        if let djangoResponse = response as? DjangoLoginResponse {
-            user = djangoResponse.user
-            accessToken = djangoResponse.tokens.access
-            refreshToken = djangoResponse.tokens.refresh
-        } else if let flexibleResponse = response as? FlexibleLoginResponse {
-            user = flexibleResponse.user
-            accessToken = flexibleResponse.access
-            refreshToken = flexibleResponse.refresh
-        } else if let step1Response = response as? LoginStep1Response {
+        if let step1Response = response as? LoginStep1Response {
             user = step1Response.user
-            accessToken = step1Response.access
-            refreshToken = step1Response.refresh
+            if let tokens = step1Response.tokens {
+                accessToken = tokens.access
+                refreshToken = tokens.refresh
+            }
         } else if let emailResponse = response as? LoginStep3Email2FAResponse {
             user = emailResponse.user
-            accessToken = emailResponse.access
-            refreshToken = emailResponse.refresh
+            if let tokens = emailResponse.tokens {
+                accessToken = tokens.access
+                refreshToken = tokens.refresh
+            }
         } else if let totpResponse = response as? LoginStep3TOTP2FAResponse {
             user = totpResponse.user
-            accessToken = totpResponse.access
-            refreshToken = totpResponse.refresh
+            if let tokens = totpResponse.tokens {
+                accessToken = tokens.access
+                refreshToken = tokens.refresh
+            }
         }
         
         // Store tokens if available
@@ -367,10 +370,16 @@ class AuthService: ObservableObject {
             
             // Log successful login
             print("✅ User logged in successfully: \(user.username)")
+            
+            // Start session refresh timer
+            startSessionRefreshTimer()
         }
     }
     
     private func handleLogout() {
+        // Stop session refresh timer
+        stopSessionRefreshTimer()
+        
         // Clear stored data
         networkManager.clearStoredTokens()
         
@@ -388,10 +397,59 @@ class AuthService: ObservableObject {
     func checkAuthenticationStatus() {
         // Check if we have a valid access token
         if let _ = getStoredAccessToken() {
-            // TODO: Validate token with backend or check expiration
-            // For now, assume token is valid
+            // With the new configuration, tokens don't expire automatically
+            // Only logout manually will invalidate the session
             isAuthenticated = true
+            
+            // Refresh session to keep it active
+            refreshSession()
+            
+            // Start session refresh timer
+            startSessionRefreshTimer()
         }
+    }
+    
+    /// Refresh user session to keep it active
+    private func refreshSession() {
+        networkManager.performRequest(
+            endpoint: AppConstants.API.Endpoints.refreshSession,
+            method: .POST,
+            requestBody: EmptyRequest(),
+            responseType: SessionRefreshResponse.self
+        )
+        .receive(on: DispatchQueue.main)
+        .sink(
+            receiveCompletion: { completion in
+                if case .failure(let error) = completion {
+                    print("⚠️ Session refresh failed: \(error)")
+                    // Don't logout user if refresh fails - session remains valid
+                }
+            },
+            receiveValue: { response in
+                print("✅ Session refreshed successfully")
+            }
+        )
+        .store(in: &cancellables)
+    }
+    
+    /// Start automatic session refresh timer
+    private func startSessionRefreshTimer() {
+        // Stop existing timer if any
+        stopSessionRefreshTimer()
+        
+        // Start new timer that refreshes session every 30 minutes
+        sessionRefreshTimer = Timer.scheduledTimer(withTimeInterval: 30 * 60, repeats: true) { [weak self] _ in
+            self?.refreshSession()
+        }
+        
+        print("⏰ Session refresh timer started (30 minute intervals)")
+    }
+    
+    /// Stop automatic session refresh timer
+    private func stopSessionRefreshTimer() {
+        sessionRefreshTimer?.invalidate()
+        sessionRefreshTimer = nil
+        print("⏰ Session refresh timer stopped")
     }
     
     // MARK: - Token Storage
@@ -410,16 +468,104 @@ class AuthService: ObservableObject {
     }
 }
 
+extension AuthService {
+    /// Complete 2FA login by making a final request to get user data and tokens
+    private func complete2FALogin() {
+        isLoading = true
+        errorMessage = nil
+        
+        // Make a final request to complete the login and get user data
+        let finalRequest = EmptyRequest()
+        
+        networkManager.performRequest(
+            endpoint: AppConstants.API.Endpoints.login,
+            method: .POST,
+            requestBody: finalRequest,
+            responseType: LoginStep1Response.self
+        )
+        .receive(on: DispatchQueue.main)
+        .sink(
+            receiveCompletion: { [weak self] completion in
+                self?.isLoading = false
+                if case .failure(let error) = completion {
+                    self?.errorMessage = error.localizedDescription
+                }
+            },
+            receiveValue: { [weak self] response in
+                self?.handleLoginSuccessResponse(response)
+            }
+        )
+        .store(in: &cancellables)
+    }
+    
+    /// Resend 2FA code
+    func resend2FACode() {
+        isLoading = true
+        errorMessage = nil
+        
+        let resendRequest = Resend2FACodeRequest(
+            method: chosen2FAMethod ?? "email"
+        )
+        
+        networkManager.performRequest(
+            endpoint: AppConstants.API.Endpoints.resend2FACode,
+            method: .POST,
+            requestBody: resendRequest,
+            responseType: LoginStep3Email2FAResponse.self
+        )
+        .receive(on: DispatchQueue.main)
+        .sink(
+            receiveCompletion: { [weak self] completion in
+                self?.isLoading = false
+                if case .failure(let error) = completion {
+                    self?.errorMessage = error.localizedDescription
+                }
+            },
+            receiveValue: { [weak self] response in
+                if response.success {
+                    self?.errorMessage = nil
+                } else {
+                    self?.errorMessage = response.message
+                }
+            }
+        )
+        .store(in: &cancellables)
+    }
+    
+    private func handleLoginSuccessResponse(_ response: LoginStep1Response) {
+        if response.success {
+            // Extract user and tokens
+            if let user = response.user, let tokens = response.tokens {
+                let accessToken = tokens.access
+                let refreshToken = tokens.refresh
+                
+                // Store tokens
+                storeTokens(access: accessToken, refresh: refreshToken)
+                
+                // Update user state
+                currentUser = user
+                isAuthenticated = true
+                requires2FA = false
+                current2FAStep = .credentials
+                errorMessage = nil
+                
+                // Log successful login
+                print("✅ User logged in successfully: \(user.username)")
+                print("🔑 Access token stored: \(String(accessToken.prefix(20)))...")
+                
+                // Start session refresh timer
+                startSessionRefreshTimer()
+            } else {
+                errorMessage = "Missing user data or tokens"
+            }
+        } else {
+            errorMessage = response.message
+        }
+    }
+}
+
 
 // MARK: - Supporting Types
-
-enum LoginStep: Hashable {
-    case credentials
-    case choose2FA
-    case email2FA
-    case totp2FA
-    case complete
-}
 
 struct EmptyRequest: Codable {}
 
@@ -428,162 +574,9 @@ struct LogoutResponse: Codable {
     let message: String
 }
 
-// MARK: - 2FA Login Request Models
-
-// Login response model that exactly matches the Django API structure
-struct DjangoLoginResponse: Codable {
+struct SessionRefreshResponse: Codable {
     let success: Bool
     let message: String
-    let user: User
-    let tokens: TokenResponse
-    let requires2FA: Bool
-    let loginComplete: Bool
-    
-    enum CodingKeys: String, CodingKey {
-        case success, message, user, tokens
-        case requires2FA = "requires_2fa"
-        case loginComplete = "login_complete"
-    }
-}
-
-struct TokenResponse: Codable {
-    let refresh: String
-    let access: String
-}
-
-// Flexible login response that can handle API variations
-struct FlexibleLoginResponse: Codable {
-    let success: Bool?
-    let message: String?
-    let requires2FA: Bool?
-    let nextStep: String?
-    let availableMethods: [String]?
-    let access: String?
-    let refresh: String?
-    let user: User?
-    
-    // Additional fields that might be present
-    let error: String?
-    let detail: String?
-    let status: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case success, message, error, detail, status
-        case requires2FA = "requires_2fa"
-        case nextStep = "next_step"
-        case availableMethods = "available_methods"
-        case access, refresh, user
-    }
-    
-    // Computed properties for easier access
-    var isSuccessful: Bool {
-        return success == true || status == "success"
-    }
-    
-    var errorMessage: String? {
-        return error ?? detail ?? message
-    }
-    
-    // Get the actual 2FA requirement status
-    var actualRequires2FA: Bool {
-        return requires2FA ?? false
-    }
-    
-    // Get the actual next step
-    var actualNextStep: String? {
-        return nextStep
-    }
-    
-    // Get the actual available methods
-    var actualAvailableMethods: [String]? {
-        return availableMethods
-    }
-}
-
-struct LoginStep1Request: Codable {
-    let step: String
-    let identifier: String
-    let password: String
-    let rememberDevice: Bool
-    
-    enum CodingKeys: String, CodingKey {
-        case step, identifier, password
-        case rememberDevice = "remember_device"
-    }
-}
-
-struct LoginStep1Response: Codable {
-    let success: Bool
-    let message: String
-    let requires2FA: Bool
-    let nextStep: String?
-    let availableMethods: [String]?
-    let access: String?
-    let refresh: String?
-    let user: User?
-    
-    enum CodingKeys: String, CodingKey {
-        case success, message
-        case requires2FA = "requires_2fa"
-        case nextStep = "next_step"
-        case availableMethods = "available_methods"
-        case access, refresh, user
-    }
-}
-
-struct LoginStep2ChoiceRequest: Codable {
-    let step: String
-    let twofaMethod: String
-    
-    enum CodingKeys: String, CodingKey {
-        case step
-        case twofaMethod = "twofa_method"
-    }
-}
-
-struct LoginStep2ChoiceResponse: Codable {
-    let success: Bool
-    let message: String
-    let nextStep: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case success, message
-        case nextStep = "next_step"
-    }
-}
-
-struct LoginStep3Email2FARequest: Codable {
-    let step: String
-    let verificationCode: String
-    
-    enum CodingKeys: String, CodingKey {
-        case step
-        case verificationCode = "verification_code"
-    }
-}
-
-struct LoginStep3Email2FAResponse: Codable {
-    let success: Bool
-    let message: String
-    let access: String?
-    let refresh: String?
-    let user: User?
-}
-
-struct LoginStep3TOTP2FARequest: Codable {
-    let step: String
-    let totpCode: String
-    
-    enum CodingKeys: String, CodingKey {
-        case step
-        case totpCode = "totp_code"
-    }
-}
-
-struct LoginStep3TOTP2FAResponse: Codable {
-    let success: Bool
-    let message: String
-    let access: String?
-    let refresh: String?
-    let user: User?
+    let user_id: Int
+    let timestamp: String
 }

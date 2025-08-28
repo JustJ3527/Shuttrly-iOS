@@ -49,20 +49,18 @@ struct AuthenticationView: View {
         NavigationView {
             VStack(spacing: 20) {
                 // App Logo/Title
-                VStack(spacing: 16) {
-                    Image(systemName: "camera.circle.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(ColorConstants.currentTheme(.light).primary)
-                    
-                    Text("Shuttrly")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+                VStack(spacing: 0) {
+                    Image("logoShuttrlyFit")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 250)
+                        
                     
                     Text("Share your moments")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
-                .padding(.top, 60)
+                .padding(.top, 120)
                 
                 Spacer()
                 
@@ -75,10 +73,10 @@ struct AuthenticationView: View {
                         Text("Sign In")
                             .font(.headline)
                             .fontWeight(.semibold)
-                            .foregroundColor(.white)
+                            .foregroundColor(Color("textLightColor"))
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(ColorConstants.currentTheme(.light).primary)
+                            .background(Color("primaryDefaultColor"))
                             .cornerRadius(12)
                     }
                     
@@ -88,20 +86,17 @@ struct AuthenticationView: View {
                         Text("Create Account")
                             .font(.headline)
                             .fontWeight(.semibold)
-                            .foregroundColor(ColorConstants.currentTheme(.light).primary)
+                            .foregroundColor(Color("textLightColor"))
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(ColorConstants.currentTheme(.light).primary, lineWidth: 2)
-                            )
+                            .background(Color("accentDefaultColor"))
                             .cornerRadius(12)
                     }
                 }
                 .padding(.horizontal, 32)
                 .padding(.bottom, 60)
             }
+            .appBackground()
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingRegistration) {
@@ -145,6 +140,7 @@ struct MainAppView: View {
                 Text("Coming soon...")
                     .foregroundColor(.secondary)
             }
+            .appBackground()
             .tabItem {
                 Image(systemName: "photo.on.rectangle")
                 Text("Photos")
@@ -190,7 +186,7 @@ struct MainAppView: View {
             }
             .tag(3)
         }
-        .accentColor(ColorConstants.currentTheme(.light).primary)
+        .accentColor(Color("primaryDefaultColor"))
     }
 }
 
