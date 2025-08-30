@@ -11,6 +11,20 @@
 		66260D622E60C9DC00DECDDC /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3A22E5FB6BA00B5E85F /* ErrorView.swift */; };
 		66260D632E60C9DF00DECDDC /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3A12E5FB6A500B5E85F /* LoadingView.swift */; };
 		66260D642E60C9E300DECDDC /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3A02E5FB69700B5E85F /* CustomButton.swift */; };
+		663790D82E620D26004ACE9E /* TwoFAValidationButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790D72E620D26004ACE9E /* TwoFAValidationButton.swift */; };
+		663790DA2E621034004ACE9E /* LoginHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790D92E621034004ACE9E /* LoginHeaderView.swift */; };
+		663790F42E6224E5004ACE9E /* PersonalInfoStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790EF2E6224E5004ACE9E /* PersonalInfoStepView.swift */; };
+		663790F52E6224E5004ACE9E /* PasswordStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790EE2E6224E5004ACE9E /* PasswordStepView.swift */; };
+		663790F62E6224E5004ACE9E /* RegistrationCompleteStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790F02E6224E5004ACE9E /* RegistrationCompleteStepView.swift */; };
+		663790F72E6224E5004ACE9E /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790F12E6224E5004ACE9E /* RegistrationView.swift */; };
+		663790F82E6224E5004ACE9E /* UsernameStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790F22E6224E5004ACE9E /* UsernameStepView.swift */; };
+		663790F92E6224E5004ACE9E /* VerificationStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790F32E6224E5004ACE9E /* VerificationStepView.swift */; };
+		663790FA2E6224E5004ACE9E /* EmailStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790ED2E6224E5004ACE9E /* EmailStepView.swift */; };
+		663790FC2E623F76004ACE9E /* AccountSummaryStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790FB2E623F76004ACE9E /* AccountSummaryStepView.swift */; };
+		663790FE2E625C00004ACE9E /* ToggleField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663790FD2E625C00004ACE9E /* ToggleField.swift */; };
+		663791062E626CB9004ACE9E /* AuthErrorConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663791052E626CB9004ACE9E /* AuthErrorConstants.swift */; };
+		663791082E626D18004ACE9E /* AuthError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663791072E626D18004ACE9E /* AuthError.swift */; };
+		6637910A2E626D50004ACE9E /* SimpleErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663791092E626D50004ACE9E /* SimpleErrorView.swift */; };
 		663FF3682E5FB2F100B5E85F /* ShuttrlyAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3672E5FB2F100B5E85F /* ShuttrlyAppApp.swift */; };
 		663FF36C2E5FB2F200B5E85F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 663FF36B2E5FB2F200B5E85F /* Assets.xcassets */; };
 		663FF3932E5FB5C500B5E85F /* Color+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3922E5FB5C200B5E85F /* Color+Extensions.swift */; };
@@ -19,7 +33,6 @@
 		663FF3B72E608CC700B5E85F /* LayoutConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3B62E608CC100B5E85F /* LayoutConstants.swift */; };
 		663FF3B92E608CDA00B5E85F /* TypographyConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3B82E608CD800B5E85F /* TypographyConstants.swift */; };
 		663FF3BA2E608DE500B5E85F /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3B52E608A1500B5E85F /* LoginView.swift */; };
-		663FF3BB2E608FF100B5E85F /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3B12E60870F00B5E85F /* AuthViewModel.swift */; };
 		663FF3BC2E60901F00B5E85F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3A92E5FB78C00B5E85F /* User.swift */; };
 		663FF3BD2E60902400B5E85F /* RegistrationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3AA2E5FC31D00B5E85F /* RegistrationModels.swift */; };
 		663FF3BE2E60902A00B5E85F /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3B22E60873F00B5E85F /* RegistrationViewModel.swift */; };
@@ -28,14 +41,15 @@
 		663FF3C72E609EF000B5E85F /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3C62E609EF000B5E85F /* ProfileService.swift */; };
 		663FF3C92E609F1400B5E85F /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3C82E609F1400B5E85F /* ProfileViewModel.swift */; };
 		663FF3CB2E609F2900B5E85F /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FF3CA2E609F2900B5E85F /* ProfileView.swift */; };
+		66859AAB2E61C63E00521FB7 /* Choose2FAStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66859AAA2E61C63E00521FB7 /* Choose2FAStepView.swift */; };
+		66859AAD2E61C64600521FB7 /* CredentialsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66859AAC2E61C64600521FB7 /* CredentialsStepView.swift */; };
+		66859AAF2E61C64B00521FB7 /* Email2FAStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66859AAE2E61C64B00521FB7 /* Email2FAStepView.swift */; };
+		66859AB12E61C65100521FB7 /* LoginCompleteStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66859AB02E61C65100521FB7 /* LoginCompleteStepView.swift */; };
+		66859AB42E61C65C00521FB7 /* TOTP2FAStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66859AB32E61C65C00521FB7 /* TOTP2FAStepView.swift */; };
+		66859AB62E61D04100521FB7 /* DigitField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66859AB52E61D04100521FB7 /* DigitField.swift */; };
 		66AE60C22E60CAB100C6BCDB /* customBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE60C12E60CAAE00C6BCDB /* customBackground.swift */; };
 		66AE60DD2E60E45700C6BCDB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 663FF36B2E5FB2F200B5E85F /* Assets.xcassets */; };
 		66AE61592E61091700C6BCDB /* TwoFAModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE61582E61091700C6BCDB /* TwoFAModels.swift */; };
-		66AE615B2E61094A00C6BCDB /* Email2FAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE615A2E61094A00C6BCDB /* Email2FAView.swift */; };
-		66AE615D2E61097700C6BCDB /* TwoFAChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE615C2E61097700C6BCDB /* TwoFAChoiceView.swift */; };
-		66AE615F2E61099C00C6BCDB /* TwoFATestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE615E2E61099C00C6BCDB /* TwoFATestView.swift */; };
-		66AE61612E6109AC00C6BCDB /* TOTP2FAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE61602E6109AC00C6BCDB /* TOTP2FAView.swift */; };
-		66AE61632E610F3900C6BCDB /* TwoFACoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE61622E610F3900C6BCDB /* TwoFACoordinatorView.swift */; };
 		66AE61652E61110D00C6BCDB /* TwoFAService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE61642E61110D00C6BCDB /* TwoFAService.swift */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +71,20 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		663790D72E620D26004ACE9E /* TwoFAValidationButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFAValidationButton.swift; sourceTree = "<group>"; };
+		663790D92E621034004ACE9E /* LoginHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginHeaderView.swift; sourceTree = "<group>"; };
+		663790ED2E6224E5004ACE9E /* EmailStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailStepView.swift; sourceTree = "<group>"; };
+		663790EE2E6224E5004ACE9E /* PasswordStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordStepView.swift; sourceTree = "<group>"; };
+		663790EF2E6224E5004ACE9E /* PersonalInfoStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalInfoStepView.swift; sourceTree = "<group>"; };
+		663790F02E6224E5004ACE9E /* RegistrationCompleteStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationCompleteStepView.swift; sourceTree = "<group>"; };
+		663790F12E6224E5004ACE9E /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
+		663790F22E6224E5004ACE9E /* UsernameStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameStepView.swift; sourceTree = "<group>"; };
+		663790F32E6224E5004ACE9E /* VerificationStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationStepView.swift; sourceTree = "<group>"; };
+		663790FB2E623F76004ACE9E /* AccountSummaryStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSummaryStepView.swift; sourceTree = "<group>"; };
+		663790FD2E625C00004ACE9E /* ToggleField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleField.swift; sourceTree = "<group>"; };
+		663791052E626CB9004ACE9E /* AuthErrorConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthErrorConstants.swift; sourceTree = "<group>"; };
+		663791072E626D18004ACE9E /* AuthError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthError.swift; sourceTree = "<group>"; };
+		663791092E626D50004ACE9E /* SimpleErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleErrorView.swift; sourceTree = "<group>"; };
 		663FF3642E5FB2F100B5E85F /* ShuttrlyApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShuttrlyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		663FF3672E5FB2F100B5E85F /* ShuttrlyAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttrlyAppApp.swift; sourceTree = "<group>"; };
 		663FF36B2E5FB2F200B5E85F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -75,7 +103,6 @@
 		663FF3AD2E6077CD00B5E85F /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		663FF3AF2E607F6A00B5E85F /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		663FF3B02E6086A000B5E85F /* RegistrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationService.swift; sourceTree = "<group>"; };
-		663FF3B12E60870F00B5E85F /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		663FF3B22E60873F00B5E85F /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		663FF3B52E608A1500B5E85F /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		663FF3B62E608CC100B5E85F /* LayoutConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutConstants.swift; sourceTree = "<group>"; };
@@ -83,13 +110,14 @@
 		663FF3C62E609EF000B5E85F /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
 		663FF3C82E609F1400B5E85F /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		663FF3CA2E609F2900B5E85F /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		66859AAA2E61C63E00521FB7 /* Choose2FAStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Choose2FAStepView.swift; sourceTree = "<group>"; };
+		66859AAC2E61C64600521FB7 /* CredentialsStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialsStepView.swift; sourceTree = "<group>"; };
+		66859AAE2E61C64B00521FB7 /* Email2FAStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Email2FAStepView.swift; sourceTree = "<group>"; };
+		66859AB02E61C65100521FB7 /* LoginCompleteStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCompleteStepView.swift; sourceTree = "<group>"; };
+		66859AB32E61C65C00521FB7 /* TOTP2FAStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TOTP2FAStepView.swift; sourceTree = "<group>"; };
+		66859AB52E61D04100521FB7 /* DigitField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitField.swift; sourceTree = "<group>"; };
 		66AE60C12E60CAAE00C6BCDB /* customBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = customBackground.swift; sourceTree = "<group>"; };
 		66AE61582E61091700C6BCDB /* TwoFAModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFAModels.swift; sourceTree = "<group>"; };
-		66AE615A2E61094A00C6BCDB /* Email2FAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Email2FAView.swift; sourceTree = "<group>"; };
-		66AE615C2E61097700C6BCDB /* TwoFAChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFAChoiceView.swift; sourceTree = "<group>"; };
-		66AE615E2E61099C00C6BCDB /* TwoFATestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFATestView.swift; sourceTree = "<group>"; };
-		66AE61602E6109AC00C6BCDB /* TOTP2FAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TOTP2FAView.swift; sourceTree = "<group>"; };
-		66AE61622E610F3900C6BCDB /* TwoFACoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFACoordinatorView.swift; sourceTree = "<group>"; };
 		66AE61642E61110D00C6BCDB /* TwoFAService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoFAService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -149,6 +177,34 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		663790DB2E622197004ACE9E /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				66859AB32E61C65C00521FB7 /* TOTP2FAStepView.swift */,
+				66859AAE2E61C64B00521FB7 /* Email2FAStepView.swift */,
+				66859AB02E61C65100521FB7 /* LoginCompleteStepView.swift */,
+				66859AAC2E61C64600521FB7 /* CredentialsStepView.swift */,
+				66859AAA2E61C63E00521FB7 /* Choose2FAStepView.swift */,
+				663FF3B52E608A1500B5E85F /* LoginView.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		663790DC2E622218004ACE9E /* Registratration */ = {
+			isa = PBXGroup;
+			children = (
+				663790ED2E6224E5004ACE9E /* EmailStepView.swift */,
+				663790FB2E623F76004ACE9E /* AccountSummaryStepView.swift */,
+				663790EE2E6224E5004ACE9E /* PasswordStepView.swift */,
+				663790EF2E6224E5004ACE9E /* PersonalInfoStepView.swift */,
+				663790F02E6224E5004ACE9E /* RegistrationCompleteStepView.swift */,
+				663790F12E6224E5004ACE9E /* RegistrationView.swift */,
+				663790F22E6224E5004ACE9E /* UsernameStepView.swift */,
+				663790F32E6224E5004ACE9E /* VerificationStepView.swift */,
+			);
+			path = Registratration;
+			sourceTree = "<group>";
+		};
 		663FF35B2E5FB2F100B5E85F = {
 			isa = PBXGroup;
 			children = (
@@ -205,6 +261,7 @@
 				663FF3B62E608CC100B5E85F /* LayoutConstants.swift */,
 				663FF3B82E608CD800B5E85F /* TypographyConstants.swift */,
 				663FF3952E5FB5DA00B5E85F /* AppConstants.swift */,
+				663791052E626CB9004ACE9E /* AuthErrorConstants.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -235,6 +292,7 @@
 				66AE61582E61091700C6BCDB /* TwoFAModels.swift */,
 				663FF3A92E5FB78C00B5E85F /* User.swift */,
 				663FF3AA2E5FC31D00B5E85F /* RegistrationModels.swift */,
+				663791072E626D18004ACE9E /* AuthError.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -242,12 +300,8 @@
 		663FF39A2E5FB65100B5E85F /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				66AE61622E610F3900C6BCDB /* TwoFACoordinatorView.swift */,
-				66AE61602E6109AC00C6BCDB /* TOTP2FAView.swift */,
-				66AE615E2E61099C00C6BCDB /* TwoFATestView.swift */,
-				66AE615C2E61097700C6BCDB /* TwoFAChoiceView.swift */,
-				66AE615A2E61094A00C6BCDB /* Email2FAView.swift */,
-				663FF3B52E608A1500B5E85F /* LoginView.swift */,
+				663790DC2E622218004ACE9E /* Registratration */,
+				663790DB2E622197004ACE9E /* Login */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -255,7 +309,6 @@
 		663FF39B2E5FB65800B5E85F /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				663FF3B12E60870F00B5E85F /* AuthViewModel.swift */,
 				663FF3B22E60873F00B5E85F /* RegistrationViewModel.swift */,
 			);
 			path = ViewModels;
@@ -284,10 +337,15 @@
 		663FF39E2E5FB68200B5E85F /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				663790D72E620D26004ACE9E /* TwoFAValidationButton.swift */,
+				663790FD2E625C00004ACE9E /* ToggleField.swift */,
 				663FF3A22E5FB6BA00B5E85F /* ErrorView.swift */,
+				66859AB52E61D04100521FB7 /* DigitField.swift */,
 				663FF3A12E5FB6A500B5E85F /* LoadingView.swift */,
+				663790D92E621034004ACE9E /* LoginHeaderView.swift */,
 				663FF3A02E5FB69700B5E85F /* CustomButton.swift */,
 				66AE60C12E60CAAE00C6BCDB /* customBackground.swift */,
+				663791092E626D50004ACE9E /* SimpleErrorView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -506,34 +564,48 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				663FF3BB2E608FF100B5E85F /* AuthViewModel.swift in Sources */,
 				663FF3C72E609EF000B5E85F /* ProfileService.swift in Sources */,
 				663FF3B92E608CDA00B5E85F /* TypographyConstants.swift in Sources */,
 				663FF3B72E608CC700B5E85F /* LayoutConstants.swift in Sources */,
 				663FF3BA2E608DE500B5E85F /* LoginView.swift in Sources */,
 				66260D632E60C9DF00DECDDC /* LoadingView.swift in Sources */,
 				663FF3682E5FB2F100B5E85F /* ShuttrlyAppApp.swift in Sources */,
-				66AE615D2E61097700C6BCDB /* TwoFAChoiceView.swift in Sources */,
+				663791082E626D18004ACE9E /* AuthError.swift in Sources */,
+				66859AB42E61C65C00521FB7 /* TOTP2FAStepView.swift in Sources */,
+				663790FC2E623F76004ACE9E /* AccountSummaryStepView.swift in Sources */,
+				66859AAB2E61C63E00521FB7 /* Choose2FAStepView.swift in Sources */,
+				663790D82E620D26004ACE9E /* TwoFAValidationButton.swift in Sources */,
 				663FF3BF2E60904000B5E85F /* RegistrationService.swift in Sources */,
-				66AE61632E610F3900C6BCDB /* TwoFACoordinatorView.swift in Sources */,
+				663790F42E6224E5004ACE9E /* PersonalInfoStepView.swift in Sources */,
+				663790F52E6224E5004ACE9E /* PasswordStepView.swift in Sources */,
+				663790F62E6224E5004ACE9E /* RegistrationCompleteStepView.swift in Sources */,
+				663790F72E6224E5004ACE9E /* RegistrationView.swift in Sources */,
+				663790F82E6224E5004ACE9E /* UsernameStepView.swift in Sources */,
+				663790F92E6224E5004ACE9E /* VerificationStepView.swift in Sources */,
+				663790FA2E6224E5004ACE9E /* EmailStepView.swift in Sources */,
+				663790FE2E625C00004ACE9E /* ToggleField.swift in Sources */,
+				663791062E626CB9004ACE9E /* AuthErrorConstants.swift in Sources */,
+				66859AB12E61C65100521FB7 /* LoginCompleteStepView.swift in Sources */,
 				663FF3BD2E60902400B5E85F /* RegistrationModels.swift in Sources */,
 				663FF3AE2E6077D800B5E85F /* NetworkManager.swift in Sources */,
 				663FF3CB2E609F2900B5E85F /* ProfileView.swift in Sources */,
+				66859AB62E61D04100521FB7 /* DigitField.swift in Sources */,
 				66AE61592E61091700C6BCDB /* TwoFAModels.swift in Sources */,
 				66AE60C22E60CAB100C6BCDB /* customBackground.swift in Sources */,
-				66AE615F2E61099C00C6BCDB /* TwoFATestView.swift in Sources */,
-				66AE61612E6109AC00C6BCDB /* TOTP2FAView.swift in Sources */,
+				66859AAF2E61C64B00521FB7 /* Email2FAStepView.swift in Sources */,
 				66AE61652E61110D00C6BCDB /* TwoFAService.swift in Sources */,
 				663FF3BE2E60902A00B5E85F /* RegistrationViewModel.swift in Sources */,
 				663FF3932E5FB5C500B5E85F /* Color+Extensions.swift in Sources */,
 				66260D612E60C9C200DECDDC /* Localizable.swift in Sources */,
-				66AE615B2E61094A00C6BCDB /* Email2FAView.swift in Sources */,
+				6637910A2E626D50004ACE9E /* SimpleErrorView.swift in Sources */,
 				663FF3C92E609F1400B5E85F /* ProfileViewModel.swift in Sources */,
 				66260D622E60C9DC00DECDDC /* ErrorView.swift in Sources */,
 				66260D642E60C9E300DECDDC /* CustomButton.swift in Sources */,
 				663FF3C02E60904500B5E85F /* AuthService.swift in Sources */,
+				66859AAD2E61C64600521FB7 /* CredentialsStepView.swift in Sources */,
 				663FF3962E5FB5E400B5E85F /* AppConstants.swift in Sources */,
 				663FF3BC2E60901F00B5E85F /* User.swift in Sources */,
+				663790DA2E621034004ACE9E /* LoginHeaderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -701,8 +773,8 @@
 				INFOPLIST_FILE = ShuttrlyApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -733,8 +805,8 @@
 				INFOPLIST_FILE = ShuttrlyApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

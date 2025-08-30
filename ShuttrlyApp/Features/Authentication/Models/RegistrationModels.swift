@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 // MARK: - Registration Step Models
 // These models correspond to the 5-step registration process
@@ -73,8 +74,14 @@ struct UsernameAvailabilityRequest: Codable {
 }
 
 struct UsernameAvailabilityResponse: Codable {
-    let available: Bool
+    let success: Bool
     let message: String
+    let username: String
+    
+    // Computed property to maintain compatibility with existing code
+    var available: Bool {
+        return success
+    }
 }
 
 // MARK: - Step 5: Password Creation
@@ -112,7 +119,8 @@ enum RegistrationStep: Int, CaseIterable {
     case personalInfo = 3    // Step 3: Enter personal details
     case username = 4        // Step 4: Choose username
     case password = 5        // Step 5: Create password
-    case complete = 6        // Registration complete
+    case accountSummary = 6  // Step 6: Review account information
+    case complete = 7        // Registration complete
  
     var title: String {
         switch self {
@@ -121,6 +129,7 @@ enum RegistrationStep: Int, CaseIterable {
         case .personalInfo: return "Personal Information"
         case .username: return "Choose Username"
         case .password: return "Create Password"
+        case .accountSummary: return "Review Information"
         case .complete: return "Welcome!"
         }
     }
@@ -132,6 +141,7 @@ enum RegistrationStep: Int, CaseIterable {
         case .personalInfo: return "Tell us about yourself"
         case .username: return "Choose a unique username"
         case .password: return "Create a strong password"
+        case .accountSummary: return "Review your information before creating your account"
         case .complete: return "Your account has been created successfully!"
         }
     }
@@ -142,21 +152,22 @@ enum RegistrationStep: Int, CaseIterable {
 }
 
 // MARK: - Registration Data Container
-// This struct holds all registration data throughout the process
-struct RegistrationData {
-    var email: String = ""
-    var tempUserId: Int?
-    var firstName: String = ""
-    var lastName: String = ""
-    var dateOfBirth: Date = Date()
-    var username: String = ""
-    var password1: String = ""
-    var password2: String = ""
+// This class holds all registration data throughout the process
+class RegistrationData: ObservableObject {
+    @Published var email: String = ""
+    @Published var tempUserId: Int?
+    @Published var verificationCode: String = "" // Added for step 2
+    @Published var firstName: String = ""
+    @Published var lastName: String = ""
+    @Published var dateOfBirth: Date = Date()
+    @Published var username: String = ""
+    @Published var password1: String = ""
+    @Published var password2: String = ""
     
     // Username validation state
-    var isUsernameChecking: Bool = false
-    var isUsernameAvailable: Bool = false
-    var usernameValidationMessage: String = ""
+    @Published var isUsernameChecking: Bool = false
+    @Published var isUsernameAvailable: Bool = false
+    @Published var usernameValidationMessage: String = ""
     
     // Helper method to create the final registration request
     func createCompleteRequest() -> RegisterCompleteRequest {
@@ -180,7 +191,7 @@ struct RegistrationData {
     }
     
     var isStep2Valid: Bool {
-        return tempUserId != nil
+        return !verificationCode.isEmpty && verificationCode.count == 6
     }
     
     var isStep3Valid: Bool {
@@ -197,14 +208,14 @@ struct RegistrationData {
     }
     
     // Username validation methods
-    mutating func validateUsername(_ username: String) {
+    func validateUsername(_ username: String) {
         self.username = username
         self.isUsernameChecking = true
         self.isUsernameAvailable = false
         self.usernameValidationMessage = "Checking availability..."
     }
     
-    mutating func updateUsernameAvailability(_ available: Bool, message: String) {
+    func updateUsernameAvailability(_ available: Bool, message: String) {
         self.isUsernameChecking = false
         self.isUsernameAvailable = available
         self.usernameValidationMessage = message

@@ -249,7 +249,7 @@ class ProfileViewModel: ObservableObject {
                 isPrivate: false
             ),
             profilePicture: ProfilePicture(
-                url: "https://example.com/profile.jpg",
+                url: "https://images.unsplash.com/photo-1483909796554-bb0051ab60ad?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZmlsJTIwZmlsbGV8ZW58MHx8MHx8fDA%3D",
                 filename: "profile.jpg",
                 isDefault: false
             ),

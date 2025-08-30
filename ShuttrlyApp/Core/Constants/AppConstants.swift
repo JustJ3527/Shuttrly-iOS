@@ -26,6 +26,7 @@ struct AppConstants {
             // Registration
             static let registerStep1 = "/auth/register/step1/"
             static let registerStep2 = "/auth/register/step2/"
+            static let registerStep4 = "/auth/register/step4/"
             static let registerComplete = "/auth/register/complete/"
             static let checkUsername = "/auth/check-username/"
             static let resendCode = "/auth/resend-code/"
@@ -36,18 +37,6 @@ struct AppConstants {
             static let uploadProfilePicture = "/user/profile/picture/"
             static let deleteTrustedDevice = "/user/devices/delete/"
         }
-    }
-    
-    // MARK: - UI Configuration
-    struct UI {
-        static let cornerRadius: CGFloat = 12
-        static let padding: CGFloat = 16
-        static let buttonHeight: CGFloat = 50
-                
-        // Colors
-        static let primaryColor = "PrimaryColor"
-        static let secondaryColor = "SecondaryColor"
-        static let backgroundColor = "BackgroundColor"
     }
             
     // MARK: - Storage Keys

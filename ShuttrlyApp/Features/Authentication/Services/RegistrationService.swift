@@ -21,6 +21,7 @@ class RegistrationService: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var successMessage: String?
+    @Published var shouldRedirectToProfile: Bool = false
     
     // Network manager instance
     private let networkManager = NetworkManager.shared
@@ -95,16 +96,6 @@ class RegistrationService: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let dateString = dateFormatter.string(from: dateOfBirth)
-        
-        let request = RegisterStep3Request(
-            firstName: firstName,
-            lastName: lastName,
-            dateOfBirth: dateString
-        )
-        
         // Store data locally (no API call for this step)
         registrationData.firstName = firstName
         registrationData.lastName = lastName
@@ -117,13 +108,18 @@ class RegistrationService: ObservableObject {
     
     /// Step 4: Check username availability
     func checkUsernameAvailability(_ username: String) {
-        isLoading = true
+        print("🚀 Starting username availability check for: \(username)")
+        
+        // Set checking state to true
+        registrationData.isUsernameChecking = true
         errorMessage = nil
+        
+        print("🔍 Set isUsernameChecking to true")
         
         let request = UsernameAvailabilityRequest(username: username)
         
         networkManager.performRequest(
-            endpoint: AppConstants.API.Endpoints.checkUsername,
+            endpoint: AppConstants.API.Endpoints.registerStep4,
             method: .POST,
             requestBody: request,
             responseType: UsernameAvailabilityResponse.self
@@ -131,16 +127,44 @@ class RegistrationService: ObservableObject {
         .receive(on: DispatchQueue.main)
         .sink(
             receiveCompletion: { [weak self] completion in
+                print("🔍 Username check completion: \(completion)")
                 self?.isLoading = false
+                
                 if case .failure(let error) = completion {
                     self?.errorMessage = error.localizedDescription
+                    print("❌ Username check failed: \(error)")
+                    
+                    // Handle HTTP 400 errors (username already taken)
+                    if case .httpError(let statusCode) = error, statusCode == 400 {
+                        self?.registrationData.isUsernameAvailable = false
+                        self?.registrationData.usernameValidationMessage = "Username is already taken"
+                        print("🔍 Set username as unavailable due to 400 error")
+                    } else {
+                        // Network or other errors - show generic message
+                        self?.registrationData.isUsernameAvailable = false
+                        self?.registrationData.usernameValidationMessage = "Unable to check username availability"
+                        print("🔍 Set username as unavailable due to network error")
+                    }
+                }
+                
+                // Always set checking to false after completion (success or failure)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self?.registrationData.isUsernameChecking = false
                 }
             },
             receiveValue: { [weak self] response in
+                print("🔍 Username check response received: \(response)")
                 self?.handleUsernameAvailabilityResponse(response, username: username)
             }
         )
         .store(in: &cancellables)
+    }
+    
+    /// Step 4: Continue to next step after username validation
+    func continueFromUsername() {
+        if registrationData.isUsernameAvailable {
+            currentStep = .password
+        }
     }
     
     /// Step 5: Submit password and complete registration
@@ -190,6 +214,15 @@ class RegistrationService: ObservableObject {
         .store(in: &cancellables)
     }
     
+    /// Complete registration (called from account summary step)
+    func registerComplete() {
+        // Use the stored password data to complete registration
+        registerStep5(
+            password1: registrationData.password1,
+            password2: registrationData.password2
+        )
+    }
+    
     /// Resend verification code
     func resendVerificationCode(email: String) {
         isLoading = true
@@ -232,6 +265,8 @@ class RegistrationService: ObservableObject {
         case .username:
             currentStep = .password
         case .password:
+            currentStep = .accountSummary
+        case .accountSummary:
             currentStep = .complete
         case .complete:
             break // Already at final step
@@ -251,8 +286,10 @@ class RegistrationService: ObservableObject {
             currentStep = .personalInfo
         case .password:
             currentStep = .username
-        case .complete:
+        case .accountSummary:
             currentStep = .password
+        case .complete:
+            currentStep = .accountSummary
         }
     }
     
@@ -262,6 +299,7 @@ class RegistrationService: ObservableObject {
         registrationData = RegistrationData()
         errorMessage = nil
         successMessage = nil
+        shouldRedirectToProfile = false
     }
     
     // MARK: - Private Methods
@@ -291,19 +329,30 @@ class RegistrationService: ObservableObject {
     }
     
     private func handleUsernameAvailabilityResponse(_ response: UsernameAvailabilityResponse, username: String) {
+        print("🔍 UsernameAvailabilityResponse received: \(response)")
+        
+        // Note: isUsernameChecking is set to false in the completion handler
+        // with a delay to ensure the animation is visible
+        
         if response.available {
             // Username is available
             registrationData.username = username
             registrationData.isUsernameAvailable = true
             registrationData.usernameValidationMessage = response.message
             
-            // Move to next step
-            currentStep = .password
+            print("✅ Username available: \(username), message: \(response.message)")
+            print("🔍 Updated registrationData: isAvailable=\(registrationData.isUsernameAvailable), message='\(registrationData.usernameValidationMessage)'")
+            
+            // Don't move to next step automatically for real-time validation
+            // User will click "Continue" when ready
         } else {
             // Username is not available
             registrationData.isUsernameAvailable = false
             registrationData.usernameValidationMessage = response.message
             errorMessage = response.message
+            
+            print("❌ Username not available: \(username), message: \(response.message)")
+            print("🔍 Updated registrationData: isAvailable=\(registrationData.isUsernameAvailable), message='\(registrationData.usernameValidationMessage)'")
         }
     }
     
@@ -313,8 +362,11 @@ class RegistrationService: ObservableObject {
             currentStep = .complete
             successMessage = response.message
             
-            // TODO: Automatically log in the user or redirect to login
+            // Set flag to redirect to profile view
+            shouldRedirectToProfile = true
+            
             print("✅ Registration successful for user: \(response.user.username)")
+            print("🔄 Redirecting to ProfileView...")
         } else {
             errorMessage = response.message
         }
@@ -343,6 +395,8 @@ class RegistrationService: ObservableObject {
             return registrationData.isStep4Valid
         case .password:
             return registrationData.isStep5Valid
+        case .accountSummary:
+            return true // Account summary is always valid (read-only)
         case .complete:
             return true
         }

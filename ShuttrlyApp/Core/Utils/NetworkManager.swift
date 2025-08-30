@@ -79,6 +79,16 @@ class NetworkManager: ObservableObject {
                         print("📥 Raw response: \(responseString)")
                     }
                     return data
+                case 400:
+                    // Parse structured error response from API
+                    if let responseString = String(data: data, encoding: .utf8) {
+                        print("📥 Error response: \(responseString)")
+                        // Try to parse structured error
+                        if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                            throw NetworkError.apiError(errorData)
+                        }
+                    }
+                    throw NetworkError.httpError(httpResponse.statusCode)
                 case 401:
                     // Don't throw unauthorized error for session refresh endpoint
                     // This allows the app to continue working even if refresh fails
@@ -162,6 +172,16 @@ class NetworkManager: ObservableObject {
                         print("📥 Raw response: \(responseString)")
                     }
                     return data
+                case 400:
+                    // Parse structured error response from API
+                    if let responseString = String(data: data, encoding: .utf8) {
+                        print("📥 Error response: \(responseString)")
+                        // Try to parse structured error
+                        if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                            throw NetworkError.apiError(errorData)
+                        }
+                    }
+                    throw NetworkError.httpError(httpResponse.statusCode)
                 case 401:
                     throw NetworkError.unauthorized
                 case 403:
@@ -273,6 +293,7 @@ enum NetworkError: LocalizedError {
     case validationError
     case serverError
     case httpError(Int)
+    case apiError([String: Any])  // Structured API error response
     case encodingError(Error)
     case decodingError(Error)
     
@@ -294,6 +315,13 @@ enum NetworkError: LocalizedError {
             return "Server error - Please try again later"
         case .httpError(let code):
             return "HTTP error: \(code)"
+        case .apiError(let errorData):
+            // Extract user-friendly message from structured API error
+            if let error = errorData["error"] as? [String: Any],
+               let message = error["message"] as? String {
+                return message
+            }
+            return "API error occurred"
         case .encodingError(let error):
             return "Encoding error: \(error.localizedDescription)"
         case .decodingError(let error):

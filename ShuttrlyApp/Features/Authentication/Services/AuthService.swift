@@ -19,7 +19,7 @@ class AuthService: ObservableObject {
     @Published var isAuthenticated: Bool = false
     @Published var currentUser: User?
     @Published var isLoading: Bool = false
-    @Published var errorMessage: String?
+    @Published var authError: AuthError?
     
     // 2FA state properties
     @Published var requires2FA: Bool = false
@@ -47,8 +47,13 @@ class AuthService: ObservableObject {
     
     /// Step 1: Login with credentials (email/username + password)
     func loginStep1(identifier: String, password: String, rememberDevice: Bool = false) {
+        // Reset state to start fresh
+        current2FAStep = .credentials
+        requires2FA = false
+        available2FAMethods = []
+        chosen2FAMethod = nil
+        authError = nil
         isLoading = true
-        errorMessage = nil
         
         let loginRequest = LoginStep1Request(
             identifier: identifier,
@@ -68,7 +73,18 @@ class AuthService: ObservableObject {
                 self?.isLoading = false
                 if case .failure(let error) = completion {
                     print("🔴 Login error: \(error)")
-                    self?.errorMessage = error.localizedDescription
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .apiError(let errorData):
+                            // Parse structured API error
+                            print("🔍 Parsing API error data: \(errorData)")
+                            self?.authError = self?.createAuthError(from: errorData) ?? AuthError.serverError()
+                        default:
+                            self?.authError = AuthError.networkError()
+                        }
+                    } else {
+                        self?.authError = AuthError.networkError()
+                    }
                 }
             },
             receiveValue: { [weak self] response in
@@ -82,7 +98,7 @@ class AuthService: ObservableObject {
     /// Step 2: Choose 2FA method (if multiple available)
     func loginStep2Choose2FA(method: String) {
         isLoading = true
-        errorMessage = nil
+        authError = nil
         
         let choiceRequest = LoginStep2ChoiceRequest(
             chosenMethod: method
@@ -99,7 +115,17 @@ class AuthService: ObservableObject {
             receiveCompletion: { [weak self] completion in
                 self?.isLoading = false
                 if case .failure(let error) = completion {
-                    self?.errorMessage = error.localizedDescription
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .apiError(let errorData):
+                            // Parse structured API error
+                            self?.authError = self?.createAuthError(from: errorData) ?? AuthError.serverError()
+                        default:
+                            self?.authError = AuthError.networkError()
+                        }
+                    } else {
+                        self?.authError = AuthError.networkError()
+                    }
                 }
             },
             receiveValue: { [weak self] response in
@@ -112,7 +138,7 @@ class AuthService: ObservableObject {
     /// Step 3: Email 2FA verification
     func loginStep3Email2FA(code: String) {
         isLoading = true
-        errorMessage = nil
+        authError = nil
         
         let email2FARequest = LoginStep3Email2FARequest(
             verificationCode: code
@@ -129,7 +155,17 @@ class AuthService: ObservableObject {
             receiveCompletion: { [weak self] completion in
                 self?.isLoading = false
                 if case .failure(let error) = completion {
-                    self?.errorMessage = error.localizedDescription
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .apiError(let errorData):
+                            // Parse structured API error
+                            self?.authError = self?.createAuthError(from: errorData) ?? AuthError.serverError()
+                        default:
+                            self?.authError = AuthError.networkError()
+                        }
+                    } else {
+                        self?.authError = AuthError.networkError()
+                    }
                 }
             },
             receiveValue: { [weak self] response in
@@ -142,7 +178,7 @@ class AuthService: ObservableObject {
     /// Step 3: TOTP 2FA verification
     func loginStep3TOTP2FA(code: String) {
         isLoading = true
-        errorMessage = nil
+        authError = nil
         
         let totp2FARequest = LoginStep3TOTP2FARequest(
             totpCode: code
@@ -159,7 +195,17 @@ class AuthService: ObservableObject {
             receiveCompletion: { [weak self] completion in
                 self?.isLoading = false
                 if case .failure(let error) = completion {
-                    self?.errorMessage = error.localizedDescription
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .apiError(let errorData):
+                            // Parse structured API error
+                            self?.authError = self?.createAuthError(from: errorData) ?? AuthError.serverError()
+                        default:
+                            self?.authError = AuthError.networkError()
+                        }
+                    } else {
+                        self?.authError = AuthError.networkError()
+                    }
                 }
             },
             receiveValue: { [weak self] response in
@@ -196,13 +242,53 @@ class AuthService: ObservableObject {
     
     // MARK: - Private Methods
     
+    /// Helper function to create AuthError from API response
+    private func createAuthError(from response: Any) -> AuthError {
+        print("🔍 createAuthError called with: \(response)")
+        
+        // Parse API error response to create appropriate AuthError
+        if let responseDict = response as? [String: Any],
+           let errorDict = responseDict["error"] as? [String: Any],
+           let errorCode = errorDict["code"] as? String,
+           let errorMessage = errorDict["message"] as? String {
+            
+            print("✅ Parsed structured error - Code: \(errorCode), Message: \(errorMessage)")
+            // Create AuthError based on the error code from API
+            let authError = AuthError.fromCode(errorCode, customMessage: errorMessage)
+            print("✅ Created AuthError: \(authError.message)")
+            return authError
+        } else if let message = (response as? [String: Any])?["message"] as? String {
+            print("⚠️ Using fallback parsing for message: \(message)")
+            // Fallback: try to infer error type from message content
+            let lowercasedMessage = message.lowercased()
+            
+            if lowercasedMessage.contains("credentials") || lowercasedMessage.contains("password") {
+                return AuthError.invalidCredentials()
+            } else if lowercasedMessage.contains("not found") || lowercasedMessage.contains("doesn't exist") {
+                return AuthError.userNotFound(identifier: "unknown")
+            } else if lowercasedMessage.contains("locked") || lowercasedMessage.contains("blocked") {
+                return AuthError.accountLocked()
+            } else if lowercasedMessage.contains("verified") || lowercasedMessage.contains("verification") {
+                return AuthError.emailNotVerified(email: "unknown")
+            } else if lowercasedMessage.contains("too many") || lowercasedMessage.contains("attempts") {
+                return AuthError.tooManyAttempts()
+            } else {
+                return AuthError.serverError()
+            }
+        } else {
+            print("❌ Could not parse error response, using server error fallback")
+            return AuthError.serverError()
+        }
+    }
+    
     private func handleDjangoLoginResponse(_ response: LoginStep1Response) {
         print("🔄 Processing Django login response...")
         
         // Check if login was successful
         guard response.success else {
             print("❌ Login failed: \(response.message)")
-            errorMessage = response.message
+            // Create AuthError from response message
+            authError = createAuthError(from: ["message": response.message])
             return
         }
         
@@ -230,7 +316,7 @@ class AuthService: ObservableObject {
             }
             
             // Clear any previous error messages
-            errorMessage = nil
+            authError = nil
         } else {
             // No 2FA required, complete login
             print("✅ Login successful, no 2FA required")
@@ -257,7 +343,8 @@ class AuthService: ObservableObject {
                 }
             }
         } else {
-            errorMessage = response.message
+            // Create AuthError from response message
+            authError = createAuthError(from: ["message": response.message])
         }
     }
     
@@ -276,7 +363,7 @@ class AuthService: ObservableObject {
                 isAuthenticated = true
                 requires2FA = false
                 current2FAStep = .credentials
-                errorMessage = nil
+                authError = nil
                 
                 // Log successful login
                 print("✅ User logged in successfully after email 2FA: \(user.username)")
@@ -290,7 +377,8 @@ class AuthService: ObservableObject {
                 complete2FALogin()
             }
         } else {
-            errorMessage = response.message
+            // Create AuthError from response message
+            authError = createAuthError(from: ["message": response.message])
         }
     }
     
@@ -309,7 +397,7 @@ class AuthService: ObservableObject {
                 isAuthenticated = true
                 requires2FA = false
                 current2FAStep = .credentials
-                errorMessage = nil
+                authError = nil
                 
                 // Log successful login
                 print("✅ User logged in successfully after TOTP 2FA: \(user.username)")
@@ -323,7 +411,8 @@ class AuthService: ObservableObject {
                 complete2FALogin()
             }
         } else {
-            errorMessage = response.message
+            // Create AuthError from response message
+            authError = createAuthError(from: ["message": response.message])
         }
     }
     
@@ -366,7 +455,7 @@ class AuthService: ObservableObject {
             isAuthenticated = true
             requires2FA = false
             current2FAStep = .credentials
-            errorMessage = nil
+            authError = nil
             
             // Log successful login
             print("✅ User logged in successfully: \(user.username)")
@@ -388,7 +477,7 @@ class AuthService: ObservableObject {
         isAuthenticated = false
         requires2FA = false
         current2FAStep = .credentials
-        errorMessage = nil
+        authError = nil
         
         // Log logout
         print("👋 User logged out")
@@ -472,7 +561,7 @@ extension AuthService {
     /// Complete 2FA login by making a final request to get user data and tokens
     private func complete2FALogin() {
         isLoading = true
-        errorMessage = nil
+        authError = nil
         
         // Make a final request to complete the login and get user data
         let finalRequest = EmptyRequest()
@@ -488,7 +577,17 @@ extension AuthService {
             receiveCompletion: { [weak self] completion in
                 self?.isLoading = false
                 if case .failure(let error) = completion {
-                    self?.errorMessage = error.localizedDescription
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .apiError(let errorData):
+                            // Parse structured API error
+                            self?.authError = self?.createAuthError(from: errorData) ?? AuthError.serverError()
+                        default:
+                            self?.authError = AuthError.networkError()
+                        }
+                    } else {
+                        self?.authError = AuthError.networkError()
+                    }
                 }
             },
             receiveValue: { [weak self] response in
@@ -501,7 +600,7 @@ extension AuthService {
     /// Resend 2FA code
     func resend2FACode() {
         isLoading = true
-        errorMessage = nil
+        authError = nil
         
         let resendRequest = Resend2FACodeRequest(
             method: chosen2FAMethod ?? "email"
@@ -518,14 +617,25 @@ extension AuthService {
             receiveCompletion: { [weak self] completion in
                 self?.isLoading = false
                 if case .failure(let error) = completion {
-                    self?.errorMessage = error.localizedDescription
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .apiError(let errorData):
+                            // Parse structured API error
+                            self?.authError = self?.createAuthError(from: errorData) ?? AuthError.serverError()
+                        default:
+                            self?.authError = AuthError.networkError()
+                        }
+                    } else {
+                        self?.authError = AuthError.networkError()
+                    }
                 }
             },
             receiveValue: { [weak self] response in
                 if response.success {
-                    self?.errorMessage = nil
+                    self?.authError = nil
                 } else {
-                    self?.errorMessage = response.message
+                    // Create AuthError from response message
+                    self?.authError = self?.createAuthError(from: ["message": response.message]) ?? AuthError.serverError()
                 }
             }
         )
@@ -547,7 +657,7 @@ extension AuthService {
                 isAuthenticated = true
                 requires2FA = false
                 current2FAStep = .credentials
-                errorMessage = nil
+                authError = nil
                 
                 // Log successful login
                 print("✅ User logged in successfully: \(user.username)")
@@ -556,10 +666,11 @@ extension AuthService {
                 // Start session refresh timer
                 startSessionRefreshTimer()
             } else {
-                errorMessage = "Missing user data or tokens"
+                authError = AuthError.serverError()
             }
         } else {
-            errorMessage = response.message
+            // Create AuthError from response message
+            authError = createAuthError(from: ["message": response.message])
         }
     }
 }

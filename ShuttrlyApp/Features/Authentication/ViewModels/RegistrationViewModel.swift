@@ -267,6 +267,8 @@ class RegistrationViewModel: ObservableObject {
             return !username.isEmpty && username.count >= 3 && username.count <= 30
         case .password:
             return !password1.isEmpty && password1.count >= 8 && password1 == password2
+        case .accountSummary:
+            return true // Account summary is always valid (read-only)
         case .complete:
             return true
         }

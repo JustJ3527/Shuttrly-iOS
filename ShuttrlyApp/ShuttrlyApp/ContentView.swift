@@ -15,6 +15,7 @@ struct ContentView: View {
     // MARK: - Properties
     
     @StateObject private var authService = AuthService()
+    @StateObject private var registrationService = RegistrationService()
     
     // MARK: - Body
     
@@ -24,10 +25,21 @@ struct ContentView: View {
                 // User is authenticated, show main app
                 MainAppView()
                     .environmentObject(authService)
+            } else if registrationService.shouldRedirectToProfile {
+                // Registration completed, redirect to profile
+                ProfileView()
+                    .environmentObject(authService)
+                    .onAppear {
+                        // Reset registration service after redirecting
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            registrationService.resetRegistration()
+                        }
+                    }
             } else {
                 // User is not authenticated, show authentication
                 AuthenticationView()
                     .environmentObject(authService)
+                    .environmentObject(registrationService)
             }
         }
         .onAppear {
@@ -44,6 +56,7 @@ struct AuthenticationView: View {
     
     @EnvironmentObject var authService: AuthService
     @State private var showingRegistration = false
+    @State private var showingLogin = false
     
     var body: some View {
         NavigationView {
@@ -66,32 +79,19 @@ struct AuthenticationView: View {
                 
                 // Action Buttons
                 VStack(spacing: 16) {
-                    Button(action: {
-                        // This will trigger the fullScreenCover to show LoginView
-                        authService.current2FAStep = .choose2FA
-                    }) {
-                        Text("Sign In")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color("textLightColor"))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Color("primaryDefaultColor"))
-                            .cornerRadius(12)
-                    }
+                    CustomButton.primary(
+                        title: "Sign In",
+                        action: {
+                            showingLogin = true
+                        }
+                    )
                     
-                    Button(action: {
-                        showingRegistration = true
-                    }) {
-                        Text("Create Account")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color("textLightColor"))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Color("accentDefaultColor"))
-                            .cornerRadius(12)
-                    }
+                    CustomButton.secondary(
+                        title: "Create Account",
+                        action: {
+                            showingRegistration = true
+                        }
+                    )
                 }
                 .padding(.horizontal, 32)
                 .padding(.bottom, 60)
@@ -99,14 +99,43 @@ struct AuthenticationView: View {
             .appBackground()
             .navigationBarHidden(true)
         }
-        .sheet(isPresented: $showingRegistration) {
-            // TODO: Show registration flow
-            Text("Registration coming soon...")
-        }
-        .fullScreenCover(isPresented: .constant(authService.current2FAStep != .credentials)) {
-            // Show 2FA or login flow
-            LoginView()
-                .environmentObject(authService)
+        .fullScreenCover(isPresented: .constant(showingLogin || showingRegistration)) {
+            // Show authentication flow with NavigationStack
+            NavigationStack {
+                Group {
+                    if showingLogin {
+                        LoginView(
+                            onSwitchToRegistration: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showingLogin = false
+                                    showingRegistration = true
+                                }
+                            }
+                        )
+                        .environmentObject(authService)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing),
+                            removal: .move(edge: .leading)
+                        ))
+                    } else if showingRegistration {
+                        RegistrationView(
+                            onSwitchToLogin: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showingRegistration = false
+                                    showingLogin = true
+                                }
+                            }
+                        )
+                        .environmentObject(RegistrationService())
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing),
+                            removal: .move(edge: .leading)
+                        ))
+                    }
+                }
+                .animation(.easeInOut(duration: 0.3), value: showingLogin)
+                .animation(.easeInOut(duration: 0.3), value: showingRegistration)
+            }
         }
     }
 }
